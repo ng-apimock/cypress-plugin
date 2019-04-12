@@ -1,0 +1,8 @@
+{
+  "projectId": "@ng-apimock/cypress-plugin",
+  "baseUrl": "http://localhost:9900",
+  "integrationFolder": "test/features",
+  "pluginsFile": "test/plugins.js",
+  "supportFile": "test/support.js",
+  "video": false
+}
