@@ -3,18 +3,17 @@ workflows:
   build:
     jobs:
       - node-v8
-      - node-v9:
-          requires:
-            - node-v8
       - node-v10:
           requires:
-            - node-v9
+            - node-v8
 
 version: 2
 jobs:
   node-base: &node-base
     docker:
-      - image: node
+      - image: cypress/base
+        environment:
+          TERM: xterm
     steps:
       - run:
           name: Versions
@@ -33,13 +32,8 @@ jobs:
           name: Compile
           command: npm run compile
       - run:
-          name: Startup server
-          command: |
-            wget https://saucelabs.com/downloads/sc-4.4.12-linux.tar.gz
-            tar -xzf sc-4.4.12-linux.tar.gz
-      - run:
-          name: Start SauceLabs Tunnel
-          command: npm start & wait-on http://localhost:9900
+          name: Starting server
+          command: npm start
           background: true
       - run:
           name: Integration
@@ -47,12 +41,8 @@ jobs:
   node-v8:
     <<: *node-base
     docker:
-      - image: node:8
-  node-v9:
-    <<: *node-base
-    docker:
-      - image: node:9
+      - image: cypress/base:8
   node-v10:
     <<: *node-base
     docker:
-      - image: node:10
+      - image: cypress/base:10

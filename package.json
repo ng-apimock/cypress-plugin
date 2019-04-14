@@ -10,6 +10,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "start": "node test/server.js",
     "precompile": "rm -rf dist",
     "compile": "tsc -p tsconfig.json",
     "lint": "tslint -p tsconfig.json",
