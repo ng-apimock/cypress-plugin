@@ -1,0 +1,18 @@
+# src
+src
+
+# test
+test
+**/*.spec.*
+
+# configs
+tsconfig.json
+tslint.json
+jasmine.json
+
+# idea
+.idea
+*.iml
+
+# ci
+.circleci
