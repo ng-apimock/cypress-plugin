@@ -1,36 +1,36 @@
 {
-  "compilerOptions": {
-    "allowUnreachableCode": false,
-    "allowUnusedLabels": false,
-    "declaration": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "lib": [
-      "es6",
-      "es2015",
-      "dom"
+    "compilerOptions": {
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
+        "declaration": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "lib": [
+            "es6",
+            "es2015",
+            "dom"
+        ],
+        "module": "commonjs",
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noImplicitUseStrict": false,
+        "noLib": false,
+        "outDir": "dist",
+        "pretty": true,
+        "removeComments": true,
+        "sourceMap": true,
+        "skipLibCheck": true,
+        "target": "es2015",
+        "types": [
+            "jasmine",
+            "cypress"
+        ]
+    },
+    "include": [
+        "src/**/*.ts"
     ],
-    "module": "commonjs",
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
-    "noImplicitUseStrict": false,
-    "noLib": false,
-    "outDir": "dist",
-    "pretty": true,
-    "removeComments": true,
-    "sourceMap": true,
-    "skipLibCheck": true,
-    "target": "es2015",
-    "typeRoots": [
-      "node_modules/@types"
+    "exclude": [
+        "src/**/*.spec.ts"
     ]
-  },
-  "include": [
-    "src/**/*.ts",
-    "node_modules/cypress"
-  ],
-  "exclude": [
-    "src/**/*.spec.ts"
-  ]
 }
