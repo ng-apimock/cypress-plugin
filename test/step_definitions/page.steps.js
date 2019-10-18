@@ -52,7 +52,7 @@ function checkReturnedResponseForPostItem(scenario) {
     }
 }
 
-async function checkReturnedResponseForGetItemsScenario(scenario) {
+function checkReturnedResponseForGetItemsScenario(scenario) {
     return cy
         .readFile(path.join(mocksDirectory, 'get-items.mock.json'), {log: false})
         .then((mocks) => PagePO.data
