@@ -19,19 +19,19 @@ export class CypressPlugin implements Client {
     /** {@inheritDoc}. */
     delayResponse(name: string, delay: number): Promise<any> {
         return this.invoke('mocks', 'PUT', {name: name, delay: delay})
-            .then(() => cy.wrap());
+            .then(cy.wrap);
     }
 
     /** {@inheritDoc}. */
     deleteVariable(key: string): Promise<any> {
         return this.invoke(`variables/${key}`, 'DELETE', {})
-            .then(() => cy.wrap());
+            .then(cy.wrap);
     }
 
     /** {@inheritDoc}. */
     echoRequest(name: string, echo: boolean): Promise<any> {
         return this.invoke('mocks', 'PUT', {name: name, echo: echo})
-            .then(() => cy.wrap());
+            .then(cy.wrap);
     }
 
     /** {@inheritDoc}. */
@@ -79,8 +79,8 @@ export class CypressPlugin implements Client {
             requestObject.body = body;
         }
 
-        return cy
-            .request(requestObject)
+        
+        return this.promisify(cy.request(requestObject))
             .then((response: Response) => {
                 if (response.status !== 200) {
                     throw new Error(`An error occured while invoking ${url} that resulted in status code ${response.status}`);
@@ -91,31 +91,31 @@ export class CypressPlugin implements Client {
     /** {@inheritDoc}. */
     recordRequests(record: boolean): Promise<any> {
         return this.invoke('actions', 'PUT', {action: 'record', record: record})
-            .then(() => cy.wrap());
+            .then(cy.wrap);
     }
 
     /** {@inheritDoc}. */
     resetMocksToDefault(): Promise<any> {
         return this.invoke('actions', 'PUT', {action: 'defaults'})
-            .then(() => cy.wrap());
+            .then(cy.wrap);
     }
 
     /** {@inheritDoc}. */
     selectPreset(name: string): Promise<any> {
         return this.invoke('presets', 'PUT', {name: name})
-            .then(() => cy.wrap());
+            .then(cy.wrap);
     }
 
     /** {@inheritDoc}. */
     selectScenario(name: string, scenario: string): Promise<any> {
         return this.invoke('mocks', 'PUT', {name: name, scenario: scenario})
-            .then(() => cy.wrap());
+            .then(cy.wrap);
     }
 
     /** {@inheritDoc}. */
     setMocksToPassThrough(): Promise<any> {
         return this.invoke('actions', 'PUT', {action: 'passThroughs'})
-            .then(() => cy.wrap());
+            .then(cy.wrap);
     }
 
     /** {@inheritDoc}. */
@@ -128,8 +128,26 @@ export class CypressPlugin implements Client {
     /** {@inheritDoc}. */
     setVariables(variables: { [key: string]: string }): Promise<any> {
         return this.invoke('variables', 'PUT', variables)
-            .then(() => cy.wrap());
+            .then(cy.wrap);
+    }
+
+    // Origin: https://github.com/NicholasBoll/cypress-promise/blob/master/index.js
+    private promisify(chain: any) {
+        return new Cypress.Promise((resolve, reject) => {
+          // We must subscribe to failures and bail. Without this, the Cypress runner would never stop
+          Cypress.on('fail', rejectPromise);
+      
+          // // unsubscribe from test failure on both success and failure. This cleanup is essential
+          function resolvePromise(value: any) {
+            resolve(value);
+            Cypress.off('fail', rejectPromise)
+          }
+          function rejectPromise(error: any) {
+            reject(error);
+            Cypress.off('fail', rejectPromise)
+          }
+      
+          chain.then(resolvePromise);
+        });
     }
 }
-
-declare const cy: any;

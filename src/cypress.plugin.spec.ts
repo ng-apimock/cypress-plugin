@@ -1,19 +1,20 @@
-import {assert, match, SinonStub, stub} from 'sinon';
-import {CypressPlugin} from './cypress.plugin';
-import {RequestObject} from "./request.object";
+import { assert, match, SinonStub, stub } from 'sinon';
+import * as bluebird from 'bluebird';
+import { EventEmitter2 } from 'eventemitter2';
+import { CypressPlugin } from './cypress.plugin';
+import { RequestObject } from "./request.object";
 
 describe('CypressPlugin', () => {
     let requestFn: SinonStub;
     let setCookieFn: SinonStub;
     let wrapFn: SinonStub;
     let plugin: CypressPlugin;
-    let deferredPromise: any;
+    const eventemitter2 = new EventEmitter2();
 
     beforeEach(() => {
         requestFn = stub();
         setCookieFn = stub();
         wrapFn = stub();
-        deferredPromise = {};
 
         (global as any)['cy'] = {
             request: requestFn,
@@ -27,7 +28,10 @@ describe('CypressPlugin', () => {
                     'NG_API_MOCK_BASE_URL': 'http://localhost:9000'
                 };
                 return envVars[envName];
-            }
+            },
+            Promise: bluebird,
+            on: eventemitter2.on.bind(eventemitter2),
+            off: eventemitter2.off.bind(eventemitter2)
         };
 
         plugin = new CypressPlugin();
