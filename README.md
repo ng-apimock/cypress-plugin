@@ -4,18 +4,32 @@ The cypress plugin for ng-apimock.
 ### Usage
 This plugin connects to ng-apimock and makes the plugin functions available within the tests.
 
-Enable this plugin in your supports file:
+1. Enable this plugin in your supports file:
 
 ```js
 require('@ng-apimock/cypress-plugin').load();
 ```
 
-After registering the plugin, you can use it in your tests by calling it like this:
+2. Add environment variables to `cypress.json` configuration file
+
+Use **NG_API_MOCK_ENABLE_LOGS** with a string value of "true" or "false". Default: "true".
+Use **NG_API_MOCK_BASE_URL** with a string value of base url of your ng-apimock server
+
+```json
+{
+  "env": {
+    "NG_API_MOCK_BASE_URL": "http://localhost:3000",
+    "NG_API_MOCK_ENABLE_LOGS": "false"
+  }
+}
+```
+
+3. After registering the plugin and adding environment variables to Cypress config, you can use it in your tests by calling it like this:
 
 ```js
 describe('Some test', () => {
-    it('does something', async () => 
-        await cy.selectScenario('my-mock-name', 'some-scenario'));
+    it('does something', () => 
+        cy.selectScenario('my-mock-name', 'some-scenario'));
 });
 ```
 
