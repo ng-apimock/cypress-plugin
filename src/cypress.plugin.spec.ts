@@ -25,7 +25,8 @@ describe('CypressPlugin', () => {
         (global as any)['Cypress'] = {
             env: (envName: string) => {
                 const envVars: { [key: string]: string } = {
-                    'NG_API_MOCK_BASE_URL': 'http://localhost:9000'
+                    'NG_API_MOCK_BASE_URL': 'http://localhost:9000',
+                    'NG_API_MOCK_ENABLE_LOGS': 'false'
                 };
                 return envVars[envName];
             },
@@ -40,6 +41,24 @@ describe('CypressPlugin', () => {
     describe('constructor', () => {
         it('sets the baseUrl', () =>
             expect(plugin.baseUrl).toBe('http://localhost:9000/ngapimock'));
+
+        it('sets the logging option', () =>
+            expect(plugin.isLogsEnabled).toBe(false));
+        
+        it('throws on the wrong logging option', () => {
+            (global as any)['Cypress'].env = (envName: string) => {
+                const envVars: { [key: string]: string } = {
+                    'NG_API_MOCK_BASE_URL': 'http://localhost:9000',
+                    'NG_API_MOCK_ENABLE_LOGS': "fail"
+                };
+                return envVars[envName];
+            };
+            try {
+                plugin = new CypressPlugin();
+            } catch (error) {
+                expect(error.message).toBe('Unexpected value for NG_API_MOCK_ENABLE_LOGS env var, please provide string value: "true" or "false"');
+            }
+        });
     });
 
     describe('delayResponse', () => {

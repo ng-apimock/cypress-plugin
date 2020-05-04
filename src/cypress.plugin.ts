@@ -5,7 +5,7 @@ import {RequestObject} from './request.object';
 /** Cypress plugin for ng-apimock. */
 export class CypressPlugin implements Client {
     public baseUrl: string;
-    public isLogsEnabled = false;
+    public isLogsEnabled = true;
 
     /**
      * Constructor.
@@ -13,7 +13,11 @@ export class CypressPlugin implements Client {
      */
     constructor() {
         this.baseUrl = urljoin(Cypress.env('NG_API_MOCK_BASE_URL'), 'ngapimock');
-        this.isLogsEnabled = !!Cypress.env('NG_API_MOCK_ENABLE_LOGS');
+        try {
+            this.isLogsEnabled = JSON.parse(Cypress.env('NG_API_MOCK_ENABLE_LOGS'));
+        } catch(e) {
+            throw Error('Unexpected value for NG_API_MOCK_ENABLE_LOGS env var, please provide string value: "true" or "false"');
+        }
     }
 
     /** {@inheritDoc}. */
