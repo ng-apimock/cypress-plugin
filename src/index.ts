@@ -4,10 +4,6 @@ import {CypressPlugin} from './cypress.plugin';
 function load() {
     const plugin = new CypressPlugin();
 
-    Cypress.Commands.add("initializeNgApimock", () => {
-        plugin.setNgApimockCookie();
-    });
-
     Cypress.Commands.add("delayResponse", (name: string, delay: number) => {
         plugin.delayResponse(name, delay);
     });
@@ -34,10 +30,6 @@ function load() {
 
     Cypress.Commands.add("getVariables", () => {
         plugin.getVariables();
-    });
-
-    Cypress.Commands.add("setupApimock", () => {
-        plugin.setNgApimockCookie();
     });
 
     Cypress.Commands.add("recordRequests", (record: boolean) => {

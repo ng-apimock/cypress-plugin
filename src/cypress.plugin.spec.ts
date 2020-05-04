@@ -22,16 +22,18 @@ describe('CypressPlugin', () => {
         };
 
         (global as any)['Cypress'] = {
-            config: () => ({baseUrl: 'http://localhost:9000'})
+            env: (envName: string) => {
+                const envVars: { [key: string]: string } = {
+                    'NG_API_MOCK_BASE_URL': 'http://localhost:9000'
+                };
+                return envVars[envName];
+            }
         };
 
         plugin = new CypressPlugin();
     });
 
     describe('constructor', () => {
-        it('sets the apimock id', () =>
-            expect(plugin.ngApimockId).toBeDefined());
-
         it('sets the baseUrl', () =>
             expect(plugin.baseUrl).toBe('http://localhost:9000/ngapimock'));
     });
@@ -182,7 +184,6 @@ describe('CypressPlugin', () => {
         describe('method is GET', () => {
             beforeEach(() => {
                 requestFn.resolves(({status: 200}));
-                plugin.ngApimockId = '123';
             });
 
             it('calls the api without body', () => {
@@ -192,7 +193,6 @@ describe('CypressPlugin', () => {
                     expect(actual.method).toBe('GET');
                     expect(actual.url).toBe('http://localhost:9000/ngapimock/some/query');
                     expect(actual.log).toBe(false);
-                    expect(actual.headers['Cookie']).toBe('apimockid=123');
                     expect(actual.headers['Content-Type']).toBe('application/json');
                     return expect(actual.body).toBeUndefined();
                 }));
@@ -202,7 +202,6 @@ describe('CypressPlugin', () => {
         describe('method is DELETE', () => {
             beforeEach(() => {
                 requestFn.resolves(({status: 200}));
-                plugin.ngApimockId = '123';
             });
 
             it('calls the api without body', () => {
@@ -211,7 +210,6 @@ describe('CypressPlugin', () => {
                 assert.calledWith(requestFn, match(async (actual: RequestObject) => {
                     expect(actual.method).toBe('DELETE');
                     expect(actual.url).toBe('http://localhost:9000/ngapimock/some/query');
-                    expect(actual.headers['Cookie']).toBe('apimockid=123');
                     expect(actual.headers['Content-Type']).toBe('application/json');
                     return expect(actual.body).toBeUndefined();
                 }));
@@ -221,7 +219,6 @@ describe('CypressPlugin', () => {
         describe('method is POST', () => {
             beforeEach(() => {
                 requestFn.resolves(({status: 200}));
-                plugin.ngApimockId = '123';
             });
 
             it('calls the api without body', () => {
@@ -230,7 +227,6 @@ describe('CypressPlugin', () => {
                 assert.calledWith(requestFn, match(async (actual: RequestObject) => {
                     expect(actual.method).toBe('POST');
                     expect(actual.url).toBe('http://localhost:9000/ngapimock/some/query');
-                    expect(actual.headers['Cookie']).toBe('apimockid=123');
                     expect(actual.headers['Content-Type']).toBe('application/json');
                     return expect(actual.body).toEqual({some: 'body'});
                 }));
@@ -240,7 +236,6 @@ describe('CypressPlugin', () => {
         describe('method is PUT', () => {
             beforeEach(() => {
                 requestFn.resolves(({status: 200}));
-                plugin.ngApimockId = '123';
             });
 
             it('calls the api without body', () => {
@@ -249,7 +244,6 @@ describe('CypressPlugin', () => {
                 assert.calledWith(requestFn, match(async (actual: RequestObject) => {
                     expect(actual.method).toBe('PUT');
                     expect(actual.url).toBe('http://localhost:9000/ngapimock/some/query');
-                    expect(actual.headers['Cookie']).toBe('apimockid=123');
                     expect(actual.headers['Content-Type']).toBe('application/json');
                     return expect(actual.body).toEqual({some: 'body'});
                 }));
@@ -343,33 +337,6 @@ describe('CypressPlugin', () => {
 
         it('sets mocks to passThrough', () => {
             assert.calledWith(invokeFn, 'actions', 'PUT', {action: 'passThroughs'});
-            assert.called(wrapFn);
-        });
-    });
-
-    describe('setNgApimockCookie', () => {
-        beforeEach(async () => {
-            requestFn.resolves();
-            setCookieFn.resolves();
-
-            await plugin.setNgApimockCookie();
-        });
-
-        afterEach(() => {
-            requestFn.reset();
-            setCookieFn.reset();
-        });
-
-        it('opens the init url', () => {
-            assert.calledWith(requestFn, {
-                method: 'GET',
-                url: 'http://localhost:9000/ngapimock/init',
-                log: false
-            });
-        });
-
-        it('sets the cookie', () => {
-            assert.calledWith(setCookieFn, 'apimockid', plugin.ngApimockId, {log: false});
             assert.called(wrapFn);
         });
     });
