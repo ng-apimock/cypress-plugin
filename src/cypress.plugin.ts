@@ -13,10 +13,13 @@ export class CypressPlugin implements Client {
      */
     constructor() {
         this.baseUrl = urljoin(Cypress.env('NG_API_MOCK_BASE_URL'), 'ngapimock');
-        try {
-            this.isLogsEnabled = JSON.parse(Cypress.env('NG_API_MOCK_ENABLE_LOGS'));
-        } catch(e) {
-            throw Error('Unexpected value for NG_API_MOCK_ENABLE_LOGS env var, please provide string value: "true" or "false"');
+
+        if (Cypress.env('NG_API_MOCK_ENABLE_LOGS') != null) {
+            try {
+                this.isLogsEnabled = JSON.parse(Cypress.env('NG_API_MOCK_ENABLE_LOGS'));
+            } catch(e) {
+                throw Error('Unexpected value for NG_API_MOCK_ENABLE_LOGS env var, please provide string value: "true" or "false"');
+            }
         }
     }
 

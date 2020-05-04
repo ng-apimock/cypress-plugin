@@ -44,6 +44,17 @@ describe('CypressPlugin', () => {
 
         it('sets the logging option', () =>
             expect(plugin.isLogsEnabled).toBe(false));
+
+        it('uses default logging option', () => {
+            (global as any)['Cypress'].env = (envName: string) => {
+                const envVars: { [key: string]: string } = {
+                    'NG_API_MOCK_BASE_URL': 'http://localhost:9000'
+                };
+                return envVars[envName];
+            };
+            plugin = new CypressPlugin();
+            expect(plugin.isLogsEnabled).toBe(true);
+        });
         
         it('throws on the wrong logging option', () => {
             (global as any)['Cypress'].env = (envName: string) => {
