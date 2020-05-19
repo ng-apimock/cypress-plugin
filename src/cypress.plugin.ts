@@ -1,40 +1,44 @@
 import {Client} from '@ng-apimock/base-client';
-import * as uuid from 'uuid';
 import urljoin = require('url-join');
 import {RequestObject} from './request.object';
 
-const COOKIE_NAME = 'apimockid';
-
 /** Cypress plugin for ng-apimock. */
 export class CypressPlugin implements Client {
-    public ngApimockId: string;
     public baseUrl: string;
+    public isLogsEnabled = true;
 
     /**
      * Constructor.
      * @param {CypressPluginOptions} options The options.
      */
     constructor() {
-        this.ngApimockId = uuid.v4();
-        this.baseUrl = urljoin(Cypress.config().baseUrl, 'ngapimock');
+        this.baseUrl = urljoin(Cypress.env('NG_API_MOCK_BASE_URL'), 'ngapimock');
+
+        if (Cypress.env('NG_API_MOCK_ENABLE_LOGS') != null) {
+            try {
+                this.isLogsEnabled = JSON.parse(Cypress.env('NG_API_MOCK_ENABLE_LOGS'));
+            } catch(e) {
+                throw Error('Unexpected value for NG_API_MOCK_ENABLE_LOGS env var, please provide string value: "true" or "false"');
+            }
+        }
     }
 
     /** {@inheritDoc}. */
     delayResponse(name: string, delay: number): Promise<any> {
         return this.invoke('mocks', 'PUT', {name: name, delay: delay})
-            .then((response: any) => cy.wrap());
+            .then(cy.wrap);
     }
 
     /** {@inheritDoc}. */
     deleteVariable(key: string): Promise<any> {
         return this.invoke(`variables/${key}`, 'DELETE', {})
-            .then((response: any) => cy.wrap());
+            .then(cy.wrap);
     }
 
     /** {@inheritDoc}. */
     echoRequest(name: string, echo: boolean): Promise<any> {
         return this.invoke('mocks', 'PUT', {name: name, echo: echo})
-            .then((response: any) => cy.wrap());
+            .then(cy.wrap);
     }
 
     /** {@inheritDoc}. */
@@ -72,9 +76,8 @@ export class CypressPlugin implements Client {
         const requestObject: RequestObject = {
             method: method,
             url: url,
-            log: false,
+            log: this.isLogsEnabled,
             headers: {
-                'Cookie': `${COOKIE_NAME}=${this.ngApimockId}`,
                 'Content-Type': 'application/json'
             }
         };
@@ -83,8 +86,8 @@ export class CypressPlugin implements Client {
             requestObject.body = body;
         }
 
-        return cy
-            .request(requestObject)
+        
+        return this.promisify(cy.request(requestObject))
             .then((response: Response) => {
                 if (response.status !== 200) {
                     throw new Error(`An error occured while invoking ${url} that resulted in status code ${response.status}`);
@@ -95,46 +98,31 @@ export class CypressPlugin implements Client {
     /** {@inheritDoc}. */
     recordRequests(record: boolean): Promise<any> {
         return this.invoke('actions', 'PUT', {action: 'record', record: record})
-            .then((response: any) => cy.wrap());
+            .then(cy.wrap);
     }
 
     /** {@inheritDoc}. */
     resetMocksToDefault(): Promise<any> {
         return this.invoke('actions', 'PUT', {action: 'defaults'})
-            .then((response: any) => cy.wrap());
+            .then(cy.wrap);
     }
 
     /** {@inheritDoc}. */
     selectPreset(name: string): Promise<any> {
         return this.invoke('presets', 'PUT', {name: name})
-            .then((response: any) => cy.wrap());
+            .then(cy.wrap);
     }
 
     /** {@inheritDoc}. */
     selectScenario(name: string, scenario: string): Promise<any> {
         return this.invoke('mocks', 'PUT', {name: name, scenario: scenario})
-            .then((response: any) => cy.wrap());
+            .then(cy.wrap);
     }
 
     /** {@inheritDoc}. */
     setMocksToPassThrough(): Promise<any> {
         return this.invoke('actions', 'PUT', {action: 'passThroughs'})
-            .then((response: any) => cy.wrap());
-    }
-
-    /**
-     * Sets the apimock cookie.
-     * @return {Promise} promise The promise.
-     */
-    setNgApimockCookie(): Promise<any> {
-        return cy
-            .request({
-                method: 'GET',
-                url: urljoin(this.baseUrl, 'init'),
-                log: false
-            })
-            .then(() => cy.setCookie(COOKIE_NAME, this.ngApimockId, {log: false}))
-            .then((response: any) => cy.wrap());
+            .then(cy.wrap);
     }
 
     /** {@inheritDoc}. */
@@ -147,8 +135,26 @@ export class CypressPlugin implements Client {
     /** {@inheritDoc}. */
     setVariables(variables: { [key: string]: string }): Promise<any> {
         return this.invoke('variables', 'PUT', variables)
-            .then((response: any) => cy.wrap());
+            .then(cy.wrap);
+    }
+
+    // Origin: https://github.com/NicholasBoll/cypress-promise/blob/master/index.js
+    private promisify(chain: any) {
+        return new Cypress.Promise((resolve, reject) => {
+          // We must subscribe to failures and bail. Without this, the Cypress runner would never stop
+          Cypress.on('fail', rejectPromise);
+      
+          // // unsubscribe from test failure on both success and failure. This cleanup is essential
+          function resolvePromise(value: any) {
+            resolve(value);
+            Cypress.off('fail', rejectPromise)
+          }
+          function rejectPromise(error: any) {
+            reject(error);
+            Cypress.off('fail', rejectPromise)
+          }
+      
+          chain.then(resolvePromise);
+        });
     }
 }
-
-declare const cy: any;

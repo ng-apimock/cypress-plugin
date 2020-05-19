@@ -9,6 +9,7 @@ test
 tsconfig.json
 tslint.json
 jasmine.json
+cypress.json
 
 # idea
 .idea

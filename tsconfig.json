@@ -24,11 +24,13 @@
         "target": "es2015",
         "types": [
             "jasmine",
-            "cypress"
+            "cypress",
+            "node"
         ]
     },
     "include": [
-        "src/**/*.ts"
+        "src/**/*.ts",
+        "src/**/*.d.ts"
     ],
     "exclude": [
         "src/**/*.spec.ts"
