@@ -1,73 +1,40 @@
 import {Given, When} from "cypress-cucumber-preprocessor/steps";
 import {expect} from "chai";
 
-Given(/^ng-apimock has been initialized$/, initializeNgApimock);
-Given(/^the following mocks state:$/, checkMocksState);
-Given(/^the following variables state:$/, checkVariablesState);
+Given(/^ng-apimock has been initialized$/, () => cy.resetMocksToDefault());
 
-When(/^I add variable (.*) with value (.*)/, addVariable);
-When(/^I delete variable (.*)/, deleteVariable);
-When(/^I select scenario (.*) for mock (.*)$/, selectScenario);
-When(/^I select the preset (.*)/, selectPreset);
-When(/^I set delay to (\d+) for mock (.*)$/, delayResponse);
-When(/^I set the mocks to passThroughs$/, setMocksToPassThrough);
-When(/^I reset the mocks to default$/, resetMocksToDefault);
-When(/^I update variable (.*) with value (.*)/, updateVariable);
-When(/^I wait a (\d+) milliseconds$/, waitSeconds);
+Given(/^the following mocks state:$/, dataTable => cy
+    .then(() => {
+              cy.getMocks().then((mocks) => {
+                  dataTable.rows()
+                      .forEach((row) => expect(mocks.state[row[0]].scenario).to.equal(row[1]))
+              })
+          }
+    ));
 
-function addVariable(key, value) {
-    return cy.setVariable(key, value);
-}
-
-function checkMocksState(dataTable) {
-    return cy
-        .then(() => {
-                cy.getMocks().then((mocks) => {
-                    dataTable.rows()
-                        .forEach((row) => expect(mocks.state[row[0]].scenario).to.equal(row[1]))
-                })
-            }
-        );
-}
-
-function checkVariablesState(dataTable) {
-    return cy.getVariables()
+Given(/^the following variables state:$/, dataTable => {
+    cy.getVariables()
         .then((variables) => dataTable.rows()
             .forEach((row) => expect(variables.state[row[0]]).to.equal(row[1])));
-}
+});
 
-function delayResponse(delay, name) {
-    return cy.delayResponse(name, parseInt(delay))
-}
+When(/^I add variable (.*) with value (.*)/, (key, value) => cy.setVariable(key, value));
 
-function deleteVariable(key) {
-    return cy.deleteVariable(key);
-}
+When(/^I delete variable (.*)/, key => cy.deleteVariable(key));
 
-function initializeNgApimock() {
-    return cy.resetMocksToDefault().then(() => cy.initializeNgApimock());
-}
+When(/^I select scenario (.*) for mock (.*)$/,
+     (scenario, name) => cy.selectScenario(name, scenario));
 
-function resetMocksToDefault() {
-    return cy.resetMocksToDefault();
-}
+When(/^I select the preset (.*)/, name => cy.selectPreset(name));
 
-function selectPreset(name) {
-    return cy.selectPreset(name);
-}
+When(/^I set delay to (\d+) for mock (.*)$/,
+     (delay, name) => cy.delayResponse(name, parseInt(delay)));
 
-function selectScenario(scenario, name) {
-    return cy.selectScenario(name, scenario);
-}
+When(/^I set the mocks to passThroughs$/, () => cy.setMocksToPassThrough());
 
-function setMocksToPassThrough() {
-    return cy.setMocksToPassThrough();
-}
+When(/^I reset the mocks to default$/, () => cy.resetMocksToDefault());
 
-function updateVariable(key, value) {
-    return cy.setVariable(key, value);
-}
+When(/^I update variable (.*) with value (.*)/, (key, value) => cy.setVariable(key, value));
 
-function waitSeconds(wait) {
-    return cy.wait(wait)
-}
+When(/^I wait a (\d+) milliseconds$/, wait => cy.wait(wait));
+

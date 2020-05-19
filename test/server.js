@@ -18,5 +18,5 @@ app.use('/items', function (request, response, next) {
         next();
     }
 });
-app.listen(9900);
-console.log('ng-apimock-angular-test-app is running on port 9900');
+app.listen(3000);
+console.log('ng-apimock-angular-test-app is running on port 3000');
