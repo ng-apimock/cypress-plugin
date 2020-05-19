@@ -148,11 +148,11 @@ export class CypressPlugin implements Client {
           // // unsubscribe from test failure on both success and failure. This cleanup is essential
           function resolvePromise(value: any) {
             resolve(value);
-            Cypress.off('fail', rejectPromise)
+            Cypress.off('fail', rejectPromise);
           }
           function rejectPromise(error: any) {
             reject(error);
-            Cypress.off('fail', rejectPromise)
+            Cypress.off('fail', rejectPromise);
           }
       
           chain.then(resolvePromise);
