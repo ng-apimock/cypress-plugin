@@ -92,6 +92,7 @@ export class CypressPlugin implements Client {
                 if (response.status !== 200) {
                     throw new Error(`An error occured while invoking ${url} that resulted in status code ${response.status}`);
                 }
+                return response;
             });
     }
 
