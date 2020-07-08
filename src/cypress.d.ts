@@ -13,7 +13,7 @@ declare namespace Cypress {
       selectPreset(name: string): Promise<any>;
       selectScenario(name: string, scenario: string): Promise<any>;
       setMocksToPassThrough(): Promise<any>;
-      setVariable(key: string, value: string): Promise<any>;
-      setVariables(variables: { [key: string]: string }): Promise<any>;
+      setVariable(key: string, value: any): Promise<any>;
+      setVariables(variables: { [key: string]: any }): Promise<any>;
   }
 }
