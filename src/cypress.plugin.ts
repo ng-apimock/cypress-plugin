@@ -1,11 +1,13 @@
 import {Client} from '@ng-apimock/base-client';
 import urljoin = require('url-join');
 import {RequestObject} from './request.object';
+import * as https from 'https';
 
 /** Cypress plugin for ng-apimock. */
 export class CypressPlugin implements Client {
     public baseUrl: string;
     public isLogsEnabled = true;
+    private agent: https.Agent;
 
     /**
      * Constructor.
@@ -21,6 +23,10 @@ export class CypressPlugin implements Client {
                 throw Error('Unexpected value for NG_API_MOCK_ENABLE_LOGS env var, please provide string value: "true" or "false"');
             }
         }
+
+        this.agent = new https.Agent({
+            rejectUnauthorized: false
+        });
     }
 
     /** {@inheritDoc}. */
@@ -86,6 +92,9 @@ export class CypressPlugin implements Client {
             requestObject.body = body;
         }
 
+        if (this.baseUrl.startsWith('https')) {
+            requestObject.agent = this.agent;
+        }
 
         return this.promisify(cy.request(requestObject))
             .then((response: Response) => {

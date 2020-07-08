@@ -1,5 +1,6 @@
 /** Request object. */
 export interface RequestObject {
+    agent?: any;
     url: string;
     method: string;
     log: boolean;

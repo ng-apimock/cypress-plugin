@@ -13,7 +13,6 @@
     "start": "node test/server.js",
     "precompile": "rm -rf dist",
     "compile": "tsc -p tsconfig.json",
-    "clearcache": "jest --clearCache",
     "postcompile": "copyfiles -u 1 src/**/*.d.ts dist",
     "lint": "tslint -p tsconfig.json",
     "test": "jest --config=jest.config.js -w 1",
