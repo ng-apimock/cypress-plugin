@@ -1,20 +1,18 @@
-import { assert, match, SinonStub, stub } from 'sinon';
 import * as bluebird from 'bluebird';
-import { EventEmitter2 } from 'eventemitter2';
-import { CypressPlugin } from './cypress.plugin';
-import { RequestObject } from "./request.object";
+import {EventEmitter2} from 'eventemitter2';
+import {CypressPlugin} from './cypress.plugin';
 
 describe('CypressPlugin', () => {
-    let requestFn: SinonStub;
-    let setCookieFn: SinonStub;
-    let wrapFn: SinonStub;
+    let requestFn: jest.Mock;
+    let setCookieFn: jest.Mock;
+    let wrapFn: jest.Mock;
     let plugin: CypressPlugin;
     const eventemitter2 = new EventEmitter2();
 
     beforeEach(() => {
-        requestFn = stub();
-        setCookieFn = stub();
-        wrapFn = stub();
+        requestFn = jest.fn();
+        setCookieFn = jest.fn();
+        wrapFn = jest.fn();
 
         (global as any)['cy'] = {
             request: requestFn,
@@ -55,7 +53,7 @@ describe('CypressPlugin', () => {
             plugin = new CypressPlugin();
             expect(plugin.isLogsEnabled).toBe(true);
         });
-        
+
         it('throws on the wrong logging option', () => {
             (global as any)['Cypress'].env = (envName: string) => {
                 const envVars: { [key: string]: string } = {
@@ -73,128 +71,114 @@ describe('CypressPlugin', () => {
     });
 
     describe('delayResponse', () => {
-        let invokeFn: SinonStub;
+        let invokeFn: jest.Mock;
 
         beforeEach(async () => {
-            invokeFn = stub(CypressPlugin.prototype, 'invoke');
-            invokeFn.resolves();
+            invokeFn = plugin.invoke = jest.fn();
+            invokeFn.mockReturnValue(Promise.resolve());
 
             await plugin.delayResponse('name', 1000);
         });
 
-        afterEach(() => invokeFn.restore());
-
         it('delays the mock response', () => {
-            assert.calledWith(invokeFn, 'mocks', 'PUT', {name: 'name', delay: 1000});
-            assert.called(wrapFn);
+            expect(invokeFn).toHaveBeenCalledWith('mocks', 'PUT', {name: 'name', delay: 1000});
+            expect(wrapFn).toHaveBeenCalled();
         });
     });
 
     describe('deleteVariable', () => {
-        let invokeFn: SinonStub;
+        let invokeFn: jest.Mock;
 
         beforeEach(async () => {
-            invokeFn = stub(CypressPlugin.prototype, 'invoke');
-            invokeFn.resolves();
+            invokeFn = plugin.invoke = jest.fn();
+            invokeFn.mockReturnValue(Promise.resolve());
 
             await plugin.deleteVariable('one');
         });
 
-        afterEach(() => invokeFn.restore());
-
         it('deletes the variable', () => {
-            assert.calledWith(invokeFn, 'variables/one', 'DELETE', {});
-            assert.called(wrapFn);
+            expect(invokeFn).toHaveBeenCalledWith('variables/one', 'DELETE', {});
+            expect(wrapFn).toHaveBeenCalled();
         });
     });
 
     describe('echoRequest', () => {
-        let invokeFn: SinonStub;
+        let invokeFn: jest.Mock;
 
         beforeEach(async () => {
-            invokeFn = stub(CypressPlugin.prototype, 'invoke');
-            invokeFn.resolves();
+            invokeFn = plugin.invoke = jest.fn();
+            invokeFn.mockReturnValue(Promise.resolve());
 
             await plugin.echoRequest('name', true);
         });
 
-        afterEach(() => invokeFn.restore());
-
         it('enables the mock request echo', () => {
-            assert.calledWith(invokeFn, 'mocks', 'PUT', {name: 'name', echo: true});
-            assert.called(wrapFn);
+            expect(invokeFn).toHaveBeenCalledWith('mocks', 'PUT', {name: 'name', echo: true});
+            expect(wrapFn).toHaveBeenCalled();
         });
     });
 
     describe('getMocks', () => {
-        let invokeFn: SinonStub;
+        let invokeFn: jest.Mock;
 
         beforeEach(async () => {
-            invokeFn = stub(CypressPlugin.prototype, 'invoke');
-            invokeFn.resolves({body: {some: 'thing'}});
+            invokeFn = plugin.invoke = jest.fn();
+            invokeFn.mockResolvedValue({body: {some: 'thing'}});
 
             await plugin.getMocks();
         });
 
-        afterEach(() => invokeFn.restore());
-
         it('gets the mocks', () => {
-            assert.calledWith(invokeFn, 'mocks', 'GET', {});
-            assert.calledWith(wrapFn, {some: 'thing'});
+            expect(invokeFn).toHaveBeenCalledWith('mocks', 'GET', {});
+            expect(wrapFn).toHaveBeenCalledWith({some: 'thing'});
         });
     });
 
     describe('getPresets', () => {
-        let invokeFn: SinonStub;
+        let invokeFn: jest.Mock;
 
         beforeEach(async () => {
-            invokeFn = stub(CypressPlugin.prototype, 'invoke');
-            invokeFn.resolves({body: {some: 'thing'}});
+            invokeFn = plugin.invoke = jest.fn();
+            invokeFn.mockResolvedValue({body: {some: 'thing'}});
 
             await plugin.getPresets();
         });
 
-        afterEach(() => invokeFn.restore());
-
         it('gets the presets', () => {
-            assert.calledWith(invokeFn, 'presets', 'GET', {});
-            assert.calledWith(wrapFn, {some: 'thing'});
+            expect(invokeFn).toHaveBeenCalledWith('presets', 'GET', {});
+            expect(wrapFn).toHaveBeenCalledWith({some: 'thing'});
         });
     });
 
     describe('getRecordings', () => {
-        let invokeFn: SinonStub;
+        let invokeFn: jest.Mock;
 
         beforeEach(async () => {
-            invokeFn = stub(CypressPlugin.prototype, 'invoke');
-            invokeFn.resolves({body: {some: 'thing'}});
+            invokeFn = plugin.invoke = jest.fn();
+            invokeFn.mockResolvedValue({body: {some: 'thing'}});
 
             await plugin.getRecordings();
         });
 
-        afterEach(() => invokeFn.restore());
-
         it('gets the recordings', () => {
-            assert.calledWith(invokeFn, 'recordings', 'GET', {});
-            assert.calledWith(wrapFn, {some: 'thing'});
+            expect(invokeFn).toHaveBeenCalledWith('recordings', 'GET', {});
+            expect(wrapFn).toHaveBeenCalledWith({some: 'thing'});
         });
     });
 
     describe('getVariables', () => {
-        let invokeFn: SinonStub;
+        let invokeFn: jest.Mock;
 
         beforeEach(async () => {
-            invokeFn = stub(CypressPlugin.prototype, 'invoke');
-            invokeFn.resolves({body: {some: 'thing'}});
+            invokeFn = plugin.invoke = jest.fn();
+            invokeFn.mockResolvedValue({body: {some: 'thing'}});
 
             await plugin.getVariables();
         });
 
-        afterEach(() => invokeFn.restore());
-
         it('gets the variables', () => {
-            assert.calledWith(invokeFn, 'variables', 'GET', {});
-            assert.calledWith(wrapFn, {some: 'thing'});
+            expect(invokeFn).toHaveBeenCalledWith('variables', 'GET', {});
+            expect(wrapFn).toHaveBeenCalledWith({some: 'thing'});
         });
     });
 
@@ -202,7 +186,7 @@ describe('CypressPlugin', () => {
 
         describe('throws an error when fetch returns non 200', () => {
             beforeEach(() => {
-                requestFn.resolves(({status: 404}));
+                requestFn.mockResolvedValue({status: 404});
             });
 
             it('calls the api without body', async () => {
@@ -217,198 +201,197 @@ describe('CypressPlugin', () => {
 
         describe('method is GET', () => {
             beforeEach(() => {
-                requestFn.resolves(({status: 200}));
+                requestFn.mockResolvedValue({status: 200});
             });
 
             it('calls the api without body', () => {
                 plugin.invoke('some/query', 'GET', {some: 'body'});
 
-                assert.calledWith(requestFn, match(async (actual: RequestObject) => {
-                    expect(actual.method).toBe('GET');
-                    expect(actual.url).toBe('http://localhost:9000/ngapimock/some/query');
-                    expect(actual.log).toBe(false);
-                    expect(actual.headers['Content-Type']).toBe('application/json');
-                    return expect(actual.body).toBeUndefined();
-                }));
+                expect(requestFn).toHaveBeenCalled();
+
+                const actualRequest = requestFn.mock.calls[0][0];
+                expect(actualRequest.url).toBe('http://localhost:9000/ngapimock/some/query');
+                expect(actualRequest.method).toBe('GET');
+                expect((actualRequest as any).agent).toBeUndefined();
+                expect(actualRequest.headers['Content-Type']).toBe('application/json');
+                expect(actualRequest.body).toBeUndefined();
             });
         });
 
-        describe('method is DELETE', () => {
+        describe('method is HEAD', () => {
             beforeEach(() => {
-                requestFn.resolves(({status: 200}));
+                requestFn.mockResolvedValue({status: 200});
             });
 
             it('calls the api without body', () => {
-                plugin.invoke('some/query', 'DELETE', {some: 'body'});
+                plugin.invoke('some/query', 'HEAD', {some: 'body'});
 
-                assert.calledWith(requestFn, match(async (actual: RequestObject) => {
-                    expect(actual.method).toBe('DELETE');
-                    expect(actual.url).toBe('http://localhost:9000/ngapimock/some/query');
-                    expect(actual.headers['Content-Type']).toBe('application/json');
-                    return expect(actual.body).toBeUndefined();
-                }));
+                expect(requestFn).toHaveBeenCalled();
+
+                const actualRequest = requestFn.mock.calls[0][0];
+                expect(actualRequest.url).toBe('http://localhost:9000/ngapimock/some/query');
+                expect(actualRequest.method).toBe('HEAD');
+                expect((actualRequest as any).agent).toBeUndefined();
+                expect(actualRequest.headers['Content-Type']).toBe('application/json');
+                expect(actualRequest.body).toBeUndefined();
             });
         });
 
         describe('method is POST', () => {
             beforeEach(() => {
-                requestFn.resolves(({status: 200}));
+                requestFn.mockResolvedValue({status: 200});
             });
 
             it('calls the api without body', () => {
                 plugin.invoke('some/query', 'POST', {some: 'body'});
 
-                assert.calledWith(requestFn, match(async (actual: RequestObject) => {
-                    expect(actual.method).toBe('POST');
-                    expect(actual.url).toBe('http://localhost:9000/ngapimock/some/query');
-                    expect(actual.headers['Content-Type']).toBe('application/json');
-                    return expect(actual.body).toEqual({some: 'body'});
-                }));
+                expect(requestFn).toHaveBeenCalled();
+
+                const actualRequest = requestFn.mock.calls[0][0];
+                expect(actualRequest.url).toBe('http://localhost:9000/ngapimock/some/query');
+                expect(actualRequest.method).toBe('POST');
+                expect((actualRequest as any).agent).toBeUndefined();
+                expect(actualRequest.headers['Content-Type']).toBe('application/json');
+                expect(actualRequest.body).toEqual({"some": "body"});
             });
         });
 
         describe('method is PUT', () => {
             beforeEach(() => {
-                requestFn.resolves(({status: 200}));
+                requestFn.mockResolvedValue({status: 200});
             });
 
             it('calls the api without body', () => {
                 plugin.invoke('some/query', 'PUT', {some: 'body'});
 
-                assert.calledWith(requestFn, match(async (actual: RequestObject) => {
-                    expect(actual.method).toBe('PUT');
-                    expect(actual.url).toBe('http://localhost:9000/ngapimock/some/query');
-                    expect(actual.headers['Content-Type']).toBe('application/json');
-                    return expect(actual.body).toEqual({some: 'body'});
-                }));
+                expect(requestFn).toHaveBeenCalled();
+
+                const actualRequest = requestFn.mock.calls[0][0];
+                expect(actualRequest.url).toBe('http://localhost:9000/ngapimock/some/query');
+                expect(actualRequest.method).toBe('PUT');
+                expect((actualRequest as any).agent).toBeUndefined();
+                expect(actualRequest.headers['Content-Type']).toBe('application/json');
+                expect(actualRequest.body).toEqual({"some": "body"});
             });
         });
     });
 
     describe('recordRequests', () => {
-        let invokeFn: SinonStub;
+        let invokeFn: jest.Mock;
 
         beforeEach(async () => {
-            invokeFn = stub(CypressPlugin.prototype, 'invoke');
-            invokeFn.resolves({body: {some: 'thing'}});
+            invokeFn = plugin.invoke = jest.fn();
+            invokeFn.mockReturnValue(Promise.resolve());
 
             await plugin.recordRequests(true);
         });
 
-        afterEach(() => invokeFn.restore());
-
         it('enables the recording the requests', () => {
-            assert.calledWith(invokeFn, 'actions', 'PUT', {action: 'record', record: true});
-            assert.called(wrapFn);
+            expect(invokeFn).toHaveBeenCalledWith('actions', 'PUT', {
+                action: 'record',
+                record: true
+            });
+            expect(wrapFn).toHaveBeenCalled();
         });
     });
 
     describe('resetMocksToDefault', () => {
-        let invokeFn: SinonStub;
+        let invokeFn: jest.Mock;
 
         beforeEach(async () => {
-            invokeFn = stub(CypressPlugin.prototype, 'invoke');
-            invokeFn.resolves({body: {some: 'thing'}});
+            invokeFn = plugin.invoke = jest.fn();
+            invokeFn.mockReturnValue(Promise.resolve());
 
             await plugin.resetMocksToDefault();
         });
 
-        afterEach(() => invokeFn.restore());
-
         it('resets the mocks to defaults', () => {
-            assert.calledWith(invokeFn, 'actions', 'PUT', {action: 'defaults'});
-            assert.called(wrapFn);
+            expect(invokeFn).toHaveBeenCalledWith('actions', 'PUT', {action: 'defaults'});
+            expect(wrapFn).toHaveBeenCalled();
         });
     });
 
     describe('selectPreset', () => {
-        let invokeFn: SinonStub;
+        let invokeFn: jest.Mock;
 
         beforeEach(async () => {
-            invokeFn = stub(CypressPlugin.prototype, 'invoke');
-            invokeFn.resolves({body: {some: 'thing'}});
+            invokeFn = plugin.invoke = jest.fn();
+            invokeFn.mockReturnValue(Promise.resolve());
 
             await plugin.selectPreset('preset name');
         });
 
-        afterEach(() => invokeFn.restore());
-
         it('selects the preset', () => {
-            assert.calledWith(invokeFn, 'presets', 'PUT', {name: 'preset name'});
-            assert.called(wrapFn);
+            expect(invokeFn).toHaveBeenCalledWith('presets', 'PUT', {name: 'preset name'});
+            expect(wrapFn).toHaveBeenCalled();
         });
     });
 
     describe('selectScenario', () => {
-        let invokeFn: SinonStub;
+        let invokeFn: jest.Mock;
 
         beforeEach(async () => {
-            invokeFn = stub(CypressPlugin.prototype, 'invoke');
-            invokeFn.resolves({body: {some: 'thing'}});
+            invokeFn = plugin.invoke = jest.fn();
+            invokeFn.mockReturnValue(Promise.resolve());
 
             await plugin.selectScenario('name', 'scenario');
         });
 
-        afterEach(() => invokeFn.restore());
-
         it('selects the mock scenario', () => {
-            assert.calledWith(invokeFn, 'mocks', 'PUT', {name: 'name', scenario: 'scenario'});
-            assert.called(wrapFn);
+            expect(invokeFn).toHaveBeenCalledWith('mocks', 'PUT', {
+                name: 'name',
+                scenario: 'scenario'
+            });
+            expect(wrapFn).toHaveBeenCalled();
         });
     });
 
     describe('setMocksToPassThrough', () => {
-        let invokeFn: SinonStub;
+        let invokeFn: jest.Mock;
 
         beforeEach(async () => {
-            invokeFn = stub(CypressPlugin.prototype, 'invoke');
-            invokeFn.resolves({body: {some: 'thing'}});
+            invokeFn = plugin.invoke = jest.fn();
+            invokeFn.mockReturnValue(Promise.resolve());
 
             await plugin.setMocksToPassThrough();
         });
 
-        afterEach(() => invokeFn.restore());
-
         it('sets mocks to passThrough', () => {
-            assert.calledWith(invokeFn, 'actions', 'PUT', {action: 'passThroughs'});
-            assert.called(wrapFn);
+            expect(invokeFn).toHaveBeenCalledWith('actions', 'PUT', {action: 'passThroughs'});
+            expect(wrapFn).toHaveBeenCalled();
         });
     });
 
     describe('setVariable', () => {
-        let setVariablesFn: SinonStub;
+        let setVariablesFn: jest.Mock;
 
         beforeEach(async () => {
-            setVariablesFn = stub(CypressPlugin.prototype, 'setVariables');
-            setVariablesFn.resolves({body: {some: 'thing'}});
+            setVariablesFn = plugin.setVariables = jest.fn();
 
             await plugin.setVariable('one', 'first');
         });
 
-        afterEach(() => {
-            setVariablesFn.restore();
+        it('sets the variable', () => {
+            expect(setVariablesFn).toHaveBeenCalledWith({one: 'first'});
         });
-
-        it('sets the variable', () =>
-            assert.calledWith(setVariablesFn, {one: 'first'}));
     });
 
     describe('setVariables', () => {
-        let variables: { [key: string]: string };
-        let invokeFn: SinonStub;
+        let invokeFn: jest.Mock;
 
         beforeEach(async () => {
-            invokeFn = stub(CypressPlugin.prototype, 'invoke');
-            invokeFn.resolves({body: {some: 'thing'}});
+            invokeFn = plugin.invoke = jest.fn();
+            invokeFn.mockReturnValue(Promise.resolve());
 
-            await plugin.setVariables({'one': 'first', 'two': 'second'});
+            await plugin.setVariables({ one: 'first', enabled: true });
         });
 
-        afterEach(() => invokeFn.restore());
-
         it('sets the variables', () => {
-            assert.calledWith(invokeFn, 'variables', 'PUT', {'one': 'first', 'two': 'second'});
-            assert.called(wrapFn);
+            expect(invokeFn).toHaveBeenCalledWith('variables', 'PUT', {
+                one: 'first',
+                enabled: true
+            });
+            expect(wrapFn).toHaveBeenCalled();
         });
     });
 });

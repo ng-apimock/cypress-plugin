@@ -82,11 +82,11 @@ export class CypressPlugin implements Client {
             }
         };
 
-        if (['GET', 'DELETE'].indexOf(method) === -1) {
+        if (['GET', 'HEAD'].indexOf(method) === -1) {
             requestObject.body = body;
         }
 
-        
+
         return this.promisify(cy.request(requestObject))
             .then((response: Response) => {
                 if (response.status !== 200) {
@@ -127,14 +127,14 @@ export class CypressPlugin implements Client {
     }
 
     /** {@inheritDoc}. */
-    setVariable(key: string, value: string): Promise<any> {
-        const body: { [key: string]: string } = {};
+    setVariable(key: string, value: any): Promise<any> {
+        const body: { [key: string]: any } = {};
         body[key] = value;
         return this.setVariables(body);
     }
 
     /** {@inheritDoc}. */
-    setVariables(variables: { [key: string]: string }): Promise<any> {
+    setVariables(variables: { [key: string]: any }): Promise<any> {
         return this.invoke('variables', 'PUT', variables)
             .then(cy.wrap);
     }
@@ -144,7 +144,7 @@ export class CypressPlugin implements Client {
         return new Cypress.Promise((resolve, reject) => {
           // We must subscribe to failures and bail. Without this, the Cypress runner would never stop
           Cypress.on('fail', rejectPromise);
-      
+
           // // unsubscribe from test failure on both success and failure. This cleanup is essential
           function resolvePromise(value: any) {
             resolve(value);
@@ -154,7 +154,7 @@ export class CypressPlugin implements Client {
             reject(error);
             Cypress.off('fail', rejectPromise);
           }
-      
+
           chain.then(resolvePromise);
         });
     }

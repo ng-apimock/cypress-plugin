@@ -23,7 +23,7 @@
         "skipLibCheck": true,
         "target": "es2015",
         "types": [
-            "jasmine",
+            "jest",
             "cypress",
             "node"
         ]
