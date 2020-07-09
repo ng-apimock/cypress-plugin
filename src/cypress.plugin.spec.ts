@@ -231,7 +231,8 @@ describe('CypressPlugin', () => {
             it('calls the api without body', async () => {
                 await expect(plugin.invoke('some/query', 'GET', { some: 'body' }))
                     .rejects
-                    .toThrowError('An error occured while invoking http://localhost:9000/ngapimock/some/query that resulted in status code 404');
+                    .toThrowError('An error occured while invoking http://localhost:9000/ngapimock/some/query '
+                        + 'that resulted in status code 404');
             });
         });
 

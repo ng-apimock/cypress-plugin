@@ -28,7 +28,7 @@ When(/^I select scenario (.*) for mock (.*)$/,
 When(/^I select the preset (.*)/, (name) => cy.selectPreset(name));
 
 When(/^I set delay to (\d+) for mock (.*)$/,
-     (delay, name) => cy.delayResponse(name, parseInt(delay)));
+    (delay, name) => cy.delayResponse(name, parseInt(delay)));
 
 When(/^I set the mocks to passThroughs$/, () => cy.setMocksToPassThrough());
 
@@ -37,4 +37,3 @@ When(/^I reset the mocks to default$/, () => cy.resetMocksToDefault());
 When(/^I update variable (.*) with value (.*)/, (key, value) => cy.setVariable(key, value));
 
 When(/^I wait a (\d+) milliseconds$/, (wait) => cy.wait(wait));
-
