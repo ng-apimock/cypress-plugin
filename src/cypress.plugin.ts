@@ -1,26 +1,36 @@
-import {Client} from '@ng-apimock/base-client';
-import urljoin = require('url-join');
+import {Client, Configuration, DefaultConfiguration} from '@ng-apimock/base-client';
 import {RequestObject} from './request.object';
 import * as https from 'https';
+import * as uuid from 'uuid';
+import urljoin = require('url-join');
 
 /** Cypress plugin for ng-apimock. */
 export class CypressPlugin implements Client {
+    public ngApimockId: string;
     public baseUrl: string;
-    public isLogsEnabled = true;
+    public isLogsEnabled:boolean = true;
     private agent: https.Agent;
+    private configuration: Configuration;
 
-    /**
-     * Constructor.
-     * @param {CypressPluginOptions} options The options.
-     */
+    /** Constructor. */
     constructor() {
-        this.baseUrl = urljoin(Cypress.env('NG_API_MOCK_BASE_URL'), 'ngapimock');
+        this.ngApimockId = uuid.v4();
+
+        this.configuration = {
+            ...JSON.parse(JSON.stringify({
+                identifier: Cypress.env('NG_API_MOCK_BASE_IDENTIFIER') || 'apimockid',
+                baseUrl: Cypress.env('NG_API_MOCK_BASE_URL'),
+                basePath: Cypress.env('NG_API_MOCK_BASE_PATH') || '/ngapimock'
+            }))
+        };
+
+        this.baseUrl = urljoin(this.configuration.baseUrl, this.configuration.basePath);
 
         if (Cypress.env('NG_API_MOCK_ENABLE_LOGS') != null) {
             try {
-                this.isLogsEnabled = JSON.parse(Cypress.env('NG_API_MOCK_ENABLE_LOGS'));
-            } catch(e) {
-                throw Error('Unexpected value for NG_API_MOCK_ENABLE_LOGS env var, please provide string value: "true" or "false"');
+                this.isLogsEnabled = Boolean(JSON.parse(Cypress.env('NG_API_MOCK_ENABLE_LOGS')));
+            } catch (e) {
+                throw Error('Unexpected value for NG_API_MOCK_ENABLE_LOGS env var, please provide string value: `true` or `false`');
             }
         }
 
@@ -84,6 +94,7 @@ export class CypressPlugin implements Client {
             url: url,
             log: this.isLogsEnabled,
             headers: {
+                Cookie: `${this.configuration.identifier}=${this.ngApimockId}`,
                 'Content-Type': 'application/json'
             }
         };
@@ -148,23 +159,36 @@ export class CypressPlugin implements Client {
             .then(cy.wrap);
     }
 
+    /**
+     * Sets the apimock cookie.
+     * @return {Promise} promise The promise.
+     */
+    setNgApimockCookie(): Promise<any> {
+        return new Cypress.Promise((resolve, reject) => {
+            cy.request(urljoin(this.baseUrl, 'init'))
+                .then(() => cy.setCookie(this.configuration.identifier, this.ngApimockId))
+                .then(()=> resolve());
+        });
+    }
+
     // Origin: https://github.com/NicholasBoll/cypress-promise/blob/master/index.js
     private promisify(chain: any) {
         return new Cypress.Promise((resolve, reject) => {
-          // We must subscribe to failures and bail. Without this, the Cypress runner would never stop
-          Cypress.on('fail', rejectPromise);
+            // We must subscribe to failures and bail. Without this, the Cypress runner would never stop
+            Cypress.on('fail', rejectPromise);
 
-          // // unsubscribe from test failure on both success and failure. This cleanup is essential
-          function resolvePromise(value: any) {
-            resolve(value);
-            Cypress.off('fail', rejectPromise);
-          }
-          function rejectPromise(error: any) {
-            reject(error);
-            Cypress.off('fail', rejectPromise);
-          }
+            // // unsubscribe from test failure on both success and failure. This cleanup is essential
+            function resolvePromise(value: any) {
+                resolve(value);
+                Cypress.off('fail', rejectPromise);
+            }
 
-          chain.then(resolvePromise);
+            function rejectPromise(error: any) {
+                reject(error);
+                Cypress.off('fail', rejectPromise);
+            }
+
+            chain.then(resolvePromise);
         });
     }
 }

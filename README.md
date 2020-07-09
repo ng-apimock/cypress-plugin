@@ -18,7 +18,9 @@ Use **NG_API_MOCK_BASE_URL** with a string value of base url of your ng-apimock 
 ```json
 {
   "env": {
+    "NG_API_MOCK_BASE_IDENTIFIER": "my-identifier", // optional: defaults to apimockId (the cookie identifier)
     "NG_API_MOCK_BASE_URL": "http://localhost:3000",
+    "NG_API_MOCK_BASE_PATH": "myapimock", // optional: defaults to ngapimock (path on which ngapimock listens)
     "NG_API_MOCK_ENABLE_LOGS": "false"
   }
 }
@@ -35,6 +37,11 @@ describe('Some test', () => {
 
 ### Available plugin functions
 The following functions are available. Each plugin function returns a promise.
+
+initializeNgApimock
+##### initializeNgApimock(): Promise<any>;
+Initializes apimock for concurrent testing. (sets a cookie)
+[@ng-apimock/core](https://github.com/ng-apimock/core) uses a cookie to make sure that parallel tests don't intervene with each other).
 
 ##### selectScenario(name: string, scenario: string): Promise<any>;
 Selects the given scenario (when calling this function without a scenario or with 'passThrough' as scenario name, the call will be passed through to the actual backend).

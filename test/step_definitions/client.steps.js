@@ -1,7 +1,8 @@
-import {Given, When} from "cypress-cucumber-preprocessor/steps";
-import {expect} from "chai";
+import { Given, When } from 'cypress-cucumber-preprocessor/steps';
+import { expect } from 'chai';
 
-Given(/^ng-apimock has been initialized$/, () => cy.resetMocksToDefault());
+Given(/^ng-apimock has been initialized$/, () => cy.initializeNgApimock()
+    .then(() => cy.resetMocksToDefault()));
 
 Given(/^the following mocks state:$/, dataTable => cy
     .then(() => {

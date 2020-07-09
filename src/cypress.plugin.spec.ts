@@ -37,36 +37,82 @@ describe('CypressPlugin', () => {
     });
 
     describe('constructor', () => {
-        it('sets the baseUrl', () =>
-            expect(plugin.baseUrl).toBe('http://localhost:9000/ngapimock'));
-
-        it('sets the logging option', () =>
-            expect(plugin.isLogsEnabled).toBe(false));
-
-        it('uses default logging option', () => {
-            (global as any)['Cypress'].env = (envName: string) => {
-                const envVars: { [key: string]: string } = {
-                    'NG_API_MOCK_BASE_URL': 'http://localhost:9000'
+        describe('defaults', () => {
+            beforeEach(()=> {
+                (global as any)['Cypress'].env = (envName: string) => {
+                    const envVars: { [key: string]: string } = {
+                        'NG_API_MOCK_BASE_URL': 'http://localhost:9000'
+                    };
+                    return envVars[envName];
                 };
-                return envVars[envName];
-            };
-            plugin = new CypressPlugin();
-            expect(plugin.isLogsEnabled).toBe(true);
+                plugin = new CypressPlugin();
+            });
+
+            it('sets the apimock id', () => expect(plugin.ngApimockId).toBeDefined());
+
+            it('sets the baseUrl', () =>
+                expect(plugin.baseUrl).toBe('http://localhost:9000/ngapimock'));
+
+            it('sets the logging option', () =>
+                expect(plugin.isLogsEnabled).toBe(true));
+
+            it('sets the https agent', () => expect((plugin as any).agent).toBeDefined());
         });
 
-        it('throws on the wrong logging option', () => {
-            (global as any)['Cypress'].env = (envName: string) => {
-                const envVars: { [key: string]: string } = {
-                    'NG_API_MOCK_BASE_URL': 'http://localhost:9000',
-                    'NG_API_MOCK_ENABLE_LOGS': "fail"
+        describe('overrides', () => {
+            beforeEach(()=> {
+                (global as any)['Cypress'].env = (envName: string) => {
+                    const envVars: { [key: string]: any } = {
+                        'NG_API_MOCK_BASE_URL': 'http://localhost:9000',
+                        'NG_API_MOCK_ENABLE_LOGS': false,
+                        'NG_API_MOCK_BASE_PATH': 'myapimock'
+                    };
+                    return envVars[envName];
                 };
-                return envVars[envName];
-            };
-            try {
                 plugin = new CypressPlugin();
-            } catch (error) {
-                expect(error.message).toBe('Unexpected value for NG_API_MOCK_ENABLE_LOGS env var, please provide string value: "true" or "false"');
-            }
+            });
+
+            it('sets the apimock id', () => expect(plugin.ngApimockId).toBeDefined());
+
+            it('sets the baseUrl', () =>
+                expect(plugin.baseUrl).toBe('http://localhost:9000/myapimock'));
+
+            it('sets the logging option', () =>
+                expect(plugin.isLogsEnabled).toBe(false));
+
+            it('uses default logging option', () => {
+                (global as any)['Cypress'].env = (envName: string) => {
+                    const envVars: { [key: string]: string } = {
+                        'NG_API_MOCK_BASE_URL': 'http://localhost:9000'
+                    };
+                    return envVars[envName];
+                };
+                plugin = new CypressPlugin();
+                expect(plugin.isLogsEnabled).toBe(true);
+            });
+
+            it('sets the https agent', () => expect((plugin as any).agent).toBeDefined());
+        });
+
+        describe('invalid', () => {
+            beforeEach(()=> {
+                (global as any)['Cypress'].env = (envName: string) => {
+                    const envVars: { [key: string]: any } = {
+                        'NG_API_MOCK_BASE_URL': 'http://localhost:9000',
+                        'NG_API_MOCK_ENABLE_LOGS':  'fail'
+                    };
+                    return envVars[envName];
+                };
+            });
+
+            it('throws on the wrong logging option', () => {
+                try {
+                    plugin = new CypressPlugin();
+                    fail();
+                } catch (error) {
+                    expect(error.message).toBe('Unexpected value for NG_API_MOCK_ENABLE_LOGS env var, please provide string value: `true` or `false`');
+                }
+            });
         });
     });
 
@@ -359,6 +405,46 @@ describe('CypressPlugin', () => {
         it('sets mocks to passThrough', () => {
             expect(invokeFn).toHaveBeenCalledWith('actions', 'PUT', {action: 'passThroughs'});
             expect(wrapFn).toHaveBeenCalled();
+        });
+    });
+
+    describe('setNgApimockCookie', () => {
+        describe('defaults', () => {
+            beforeEach(async () => {
+                requestFn.mockResolvedValue(Promise.resolve());
+                setCookieFn.mockResolvedValue(Promise.resolve());
+
+                await plugin.setNgApimockCookie();
+            });
+
+            it('opens the init url', () => expect(requestFn).toHaveBeenCalledWith('http://localhost:9000/ngapimock/init'));
+
+            it('sets the cookie', () => expect(setCookieFn).toHaveBeenCalledWith('apimockid', plugin.ngApimockId));
+        });
+
+        describe('override', () => {
+            beforeEach(async () => {
+                requestFn.mockResolvedValue(Promise.resolve());
+                setCookieFn.mockResolvedValue(Promise.resolve());
+
+                (global as any)['Cypress'].env = (envName: string) => {
+                    const envVars: { [key: string]: any } = {
+                        'NG_API_MOCK_BASE_IDENTIFIER': 'awesomemock',
+                        'NG_API_MOCK_BASE_URL': 'http://localhost:9000',
+                        'NG_API_MOCK_BASE_PATH':  'myapimock'
+                    };
+                    return envVars[envName];
+                };
+
+                plugin = new CypressPlugin();
+                plugin.ngApimockId = '123';
+
+                await plugin.setNgApimockCookie();
+            });
+
+            it('opens the init url', () => expect(requestFn).toHaveBeenCalledWith('http://localhost:9000/myapimock/init'));
+
+            it('sets the cookie', () => expect(setCookieFn).toHaveBeenCalledWith('awesomemock', plugin.ngApimockId));
         });
     });
 

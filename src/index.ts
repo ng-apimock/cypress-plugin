@@ -32,6 +32,10 @@ function load() {
         plugin.getVariables();
     });
 
+    Cypress.Commands.add("initializeNgApimock", () => {
+        plugin.setNgApimockCookie();
+    });
+
     Cypress.Commands.add("recordRequests", (record: boolean) => {
         plugin.recordRequests(record);
     });

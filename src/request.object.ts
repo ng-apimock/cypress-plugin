@@ -10,5 +10,5 @@ export interface RequestObject {
 
 /** Request headers. */
 export interface RequestHeaders {
-    [key: string]: string;
+    [key: string]: any;
 }
