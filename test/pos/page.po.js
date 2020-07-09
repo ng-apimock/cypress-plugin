@@ -1,3 +1,5 @@
+const { PageButtons } = require('./page-buttons.po');
+
 class PagePO {
     static get data() {
         return cy.get('.data');
@@ -24,25 +26,6 @@ class PagePO {
     }
 }
 
-class PageButtons {
-    get binary() {
-        return cy.get('button').contains('binary');
-    }
-
-    get get() {
-        return cy.get('button').contains('get');
-    }
-
-    get getAsJsonp() {
-        return cy.get('button').contains('get as jsonp');
-    }
-
-    get post() {
-        return cy.get('button').contains('post');
-    }
-}
-
 module.exports = {
-    PagePO: PagePO,
-    PageButtons: PageButtons
+    PagePO
 };

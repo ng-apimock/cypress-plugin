@@ -1,6 +1,7 @@
 import * as bluebird from 'bluebird';
-import {EventEmitter2} from 'eventemitter2';
-import {CypressPlugin} from './cypress.plugin';
+import { EventEmitter2 } from 'eventemitter2';
+
+import { CypressPlugin } from './cypress.plugin';
 
 describe('CypressPlugin', () => {
     let requestFn: jest.Mock;
@@ -23,8 +24,8 @@ describe('CypressPlugin', () => {
         (global as any)['Cypress'] = {
             env: (envName: string) => {
                 const envVars: { [key: string]: string } = {
-                    'NG_API_MOCK_BASE_URL': 'http://localhost:9000',
-                    'NG_API_MOCK_ENABLE_LOGS': 'false'
+                    NG_API_MOCK_BASE_URL: 'http://localhost:9000',
+                    NG_API_MOCK_ENABLE_LOGS: 'false'
                 };
                 return envVars[envName];
             },
@@ -38,10 +39,10 @@ describe('CypressPlugin', () => {
 
     describe('constructor', () => {
         describe('defaults', () => {
-            beforeEach(()=> {
+            beforeEach(() => {
                 (global as any)['Cypress'].env = (envName: string) => {
                     const envVars: { [key: string]: string } = {
-                        'NG_API_MOCK_BASE_URL': 'http://localhost:9000'
+                        NG_API_MOCK_BASE_URL: 'http://localhost:9000'
                     };
                     return envVars[envName];
                 };
@@ -50,22 +51,20 @@ describe('CypressPlugin', () => {
 
             it('sets the apimock id', () => expect(plugin.ngApimockId).toBeDefined());
 
-            it('sets the baseUrl', () =>
-                expect(plugin.baseUrl).toBe('http://localhost:9000/ngapimock'));
+            it('sets the baseUrl', () => expect(plugin.baseUrl).toBe('http://localhost:9000/ngapimock'));
 
-            it('sets the logging option', () =>
-                expect(plugin.isLogsEnabled).toBe(true));
+            it('sets the logging option', () => expect(plugin.isLogsEnabled).toBe(true));
 
             it('sets the https agent', () => expect((plugin as any).agent).toBeDefined());
         });
 
         describe('overrides', () => {
-            beforeEach(()=> {
+            beforeEach(() => {
                 (global as any)['Cypress'].env = (envName: string) => {
                     const envVars: { [key: string]: any } = {
-                        'NG_API_MOCK_BASE_URL': 'http://localhost:9000',
-                        'NG_API_MOCK_ENABLE_LOGS': false,
-                        'NG_API_MOCK_BASE_PATH': 'myapimock'
+                        NG_API_MOCK_BASE_URL: 'http://localhost:9000',
+                        NG_API_MOCK_ENABLE_LOGS: false,
+                        NG_API_MOCK_BASE_PATH: 'myapimock'
                     };
                     return envVars[envName];
                 };
@@ -74,16 +73,14 @@ describe('CypressPlugin', () => {
 
             it('sets the apimock id', () => expect(plugin.ngApimockId).toBeDefined());
 
-            it('sets the baseUrl', () =>
-                expect(plugin.baseUrl).toBe('http://localhost:9000/myapimock'));
+            it('sets the baseUrl', () => expect(plugin.baseUrl).toBe('http://localhost:9000/myapimock'));
 
-            it('sets the logging option', () =>
-                expect(plugin.isLogsEnabled).toBe(false));
+            it('sets the logging option', () => expect(plugin.isLogsEnabled).toBe(false));
 
             it('uses default logging option', () => {
                 (global as any)['Cypress'].env = (envName: string) => {
                     const envVars: { [key: string]: string } = {
-                        'NG_API_MOCK_BASE_URL': 'http://localhost:9000'
+                        NG_API_MOCK_BASE_URL: 'http://localhost:9000'
                     };
                     return envVars[envName];
                 };
@@ -95,23 +92,20 @@ describe('CypressPlugin', () => {
         });
 
         describe('invalid', () => {
-            beforeEach(()=> {
+            beforeEach(() => {
                 (global as any)['Cypress'].env = (envName: string) => {
                     const envVars: { [key: string]: any } = {
-                        'NG_API_MOCK_BASE_URL': 'http://localhost:9000',
-                        'NG_API_MOCK_ENABLE_LOGS':  'fail'
+                        NG_API_MOCK_BASE_URL: 'http://localhost:9000',
+                        NG_API_MOCK_ENABLE_LOGS: 'fail'
                     };
                     return envVars[envName];
                 };
             });
 
             it('throws on the wrong logging option', () => {
-                try {
-                    plugin = new CypressPlugin();
-                    fail();
-                } catch (error) {
-                    expect(error.message).toBe('Unexpected value for NG_API_MOCK_ENABLE_LOGS env var, please provide string value: `true` or `false`');
-                }
+                // eslint-disable-next-line no-new
+                expect(() => { new CypressPlugin(); })
+                    .toThrowError('Unexpected value for NG_API_MOCK_ENABLE_LOGS env var, please provide string value: `true` or `false`');
             });
         });
     });
@@ -127,7 +121,7 @@ describe('CypressPlugin', () => {
         });
 
         it('delays the mock response', () => {
-            expect(invokeFn).toHaveBeenCalledWith('mocks', 'PUT', {name: 'name', delay: 1000});
+            expect(invokeFn).toHaveBeenCalledWith('mocks', 'PUT', { name: 'name', delay: 1000 });
             expect(wrapFn).toHaveBeenCalled();
         });
     });
@@ -159,7 +153,7 @@ describe('CypressPlugin', () => {
         });
 
         it('enables the mock request echo', () => {
-            expect(invokeFn).toHaveBeenCalledWith('mocks', 'PUT', {name: 'name', echo: true});
+            expect(invokeFn).toHaveBeenCalledWith('mocks', 'PUT', { name: 'name', echo: true });
             expect(wrapFn).toHaveBeenCalled();
         });
     });
@@ -169,14 +163,14 @@ describe('CypressPlugin', () => {
 
         beforeEach(async () => {
             invokeFn = plugin.invoke = jest.fn();
-            invokeFn.mockResolvedValue({body: {some: 'thing'}});
+            invokeFn.mockResolvedValue({ body: { some: 'thing' } });
 
             await plugin.getMocks();
         });
 
         it('gets the mocks', () => {
             expect(invokeFn).toHaveBeenCalledWith('mocks', 'GET', {});
-            expect(wrapFn).toHaveBeenCalledWith({some: 'thing'});
+            expect(wrapFn).toHaveBeenCalledWith({ some: 'thing' });
         });
     });
 
@@ -185,14 +179,14 @@ describe('CypressPlugin', () => {
 
         beforeEach(async () => {
             invokeFn = plugin.invoke = jest.fn();
-            invokeFn.mockResolvedValue({body: {some: 'thing'}});
+            invokeFn.mockResolvedValue({ body: { some: 'thing' } });
 
             await plugin.getPresets();
         });
 
         it('gets the presets', () => {
             expect(invokeFn).toHaveBeenCalledWith('presets', 'GET', {});
-            expect(wrapFn).toHaveBeenCalledWith({some: 'thing'});
+            expect(wrapFn).toHaveBeenCalledWith({ some: 'thing' });
         });
     });
 
@@ -201,14 +195,14 @@ describe('CypressPlugin', () => {
 
         beforeEach(async () => {
             invokeFn = plugin.invoke = jest.fn();
-            invokeFn.mockResolvedValue({body: {some: 'thing'}});
+            invokeFn.mockResolvedValue({ body: { some: 'thing' } });
 
             await plugin.getRecordings();
         });
 
         it('gets the recordings', () => {
             expect(invokeFn).toHaveBeenCalledWith('recordings', 'GET', {});
-            expect(wrapFn).toHaveBeenCalledWith({some: 'thing'});
+            expect(wrapFn).toHaveBeenCalledWith({ some: 'thing' });
         });
     });
 
@@ -217,41 +211,37 @@ describe('CypressPlugin', () => {
 
         beforeEach(async () => {
             invokeFn = plugin.invoke = jest.fn();
-            invokeFn.mockResolvedValue({body: {some: 'thing'}});
+            invokeFn.mockResolvedValue({ body: { some: 'thing' } });
 
             await plugin.getVariables();
         });
 
         it('gets the variables', () => {
             expect(invokeFn).toHaveBeenCalledWith('variables', 'GET', {});
-            expect(wrapFn).toHaveBeenCalledWith({some: 'thing'});
+            expect(wrapFn).toHaveBeenCalledWith({ some: 'thing' });
         });
     });
 
     describe('invoke', () => {
-
         describe('throws an error when fetch returns non 200', () => {
             beforeEach(() => {
-                requestFn.mockResolvedValue({status: 404});
+                requestFn.mockResolvedValue({ status: 404 });
             });
 
             it('calls the api without body', async () => {
-                try {
-                    await plugin.invoke('some/query', 'GET', {some: 'body'});
-                    fail();
-                } catch (error) {
-                    expect(error.message).toBe('An error occured while invoking http://localhost:9000/ngapimock/some/query that resulted in status code 404');
-                }
+                await expect(plugin.invoke('some/query', 'GET', { some: 'body' }))
+                    .rejects
+                    .toThrowError('An error occured while invoking http://localhost:9000/ngapimock/some/query that resulted in status code 404');
             });
         });
 
         describe('method is GET', () => {
             beforeEach(() => {
-                requestFn.mockResolvedValue({status: 200});
+                requestFn.mockResolvedValue({ status: 200 });
             });
 
             it('calls the api without body', () => {
-                plugin.invoke('some/query', 'GET', {some: 'body'});
+                plugin.invoke('some/query', 'GET', { some: 'body' });
 
                 expect(requestFn).toHaveBeenCalled();
 
@@ -266,11 +256,11 @@ describe('CypressPlugin', () => {
 
         describe('method is HEAD', () => {
             beforeEach(() => {
-                requestFn.mockResolvedValue({status: 200});
+                requestFn.mockResolvedValue({ status: 200 });
             });
 
             it('calls the api without body', () => {
-                plugin.invoke('some/query', 'HEAD', {some: 'body'});
+                plugin.invoke('some/query', 'HEAD', { some: 'body' });
 
                 expect(requestFn).toHaveBeenCalled();
 
@@ -285,11 +275,11 @@ describe('CypressPlugin', () => {
 
         describe('method is POST', () => {
             beforeEach(() => {
-                requestFn.mockResolvedValue({status: 200});
+                requestFn.mockResolvedValue({ status: 200 });
             });
 
             it('calls the api without body', () => {
-                plugin.invoke('some/query', 'POST', {some: 'body'});
+                plugin.invoke('some/query', 'POST', { some: 'body' });
 
                 expect(requestFn).toHaveBeenCalled();
 
@@ -298,17 +288,17 @@ describe('CypressPlugin', () => {
                 expect(actualRequest.method).toBe('POST');
                 expect((actualRequest as any).agent).toBeUndefined();
                 expect(actualRequest.headers['Content-Type']).toBe('application/json');
-                expect(actualRequest.body).toEqual({"some": "body"});
+                expect(actualRequest.body).toEqual({ some: 'body' });
             });
         });
 
         describe('method is PUT', () => {
             beforeEach(() => {
-                requestFn.mockResolvedValue({status: 200});
+                requestFn.mockResolvedValue({ status: 200 });
             });
 
             it('calls the api without body', () => {
-                plugin.invoke('some/query', 'PUT', {some: 'body'});
+                plugin.invoke('some/query', 'PUT', { some: 'body' });
 
                 expect(requestFn).toHaveBeenCalled();
 
@@ -317,7 +307,7 @@ describe('CypressPlugin', () => {
                 expect(actualRequest.method).toBe('PUT');
                 expect((actualRequest as any).agent).toBeUndefined();
                 expect(actualRequest.headers['Content-Type']).toBe('application/json');
-                expect(actualRequest.body).toEqual({"some": "body"});
+                expect(actualRequest.body).toEqual({ some: 'body' });
             });
         });
     });
@@ -352,7 +342,7 @@ describe('CypressPlugin', () => {
         });
 
         it('resets the mocks to defaults', () => {
-            expect(invokeFn).toHaveBeenCalledWith('actions', 'PUT', {action: 'defaults'});
+            expect(invokeFn).toHaveBeenCalledWith('actions', 'PUT', { action: 'defaults' });
             expect(wrapFn).toHaveBeenCalled();
         });
     });
@@ -368,7 +358,7 @@ describe('CypressPlugin', () => {
         });
 
         it('selects the preset', () => {
-            expect(invokeFn).toHaveBeenCalledWith('presets', 'PUT', {name: 'preset name'});
+            expect(invokeFn).toHaveBeenCalledWith('presets', 'PUT', { name: 'preset name' });
             expect(wrapFn).toHaveBeenCalled();
         });
     });
@@ -403,7 +393,7 @@ describe('CypressPlugin', () => {
         });
 
         it('sets mocks to passThrough', () => {
-            expect(invokeFn).toHaveBeenCalledWith('actions', 'PUT', {action: 'passThroughs'});
+            expect(invokeFn).toHaveBeenCalledWith('actions', 'PUT', { action: 'passThroughs' });
             expect(wrapFn).toHaveBeenCalled();
         });
     });
@@ -429,9 +419,9 @@ describe('CypressPlugin', () => {
 
                 (global as any)['Cypress'].env = (envName: string) => {
                     const envVars: { [key: string]: any } = {
-                        'NG_API_MOCK_BASE_IDENTIFIER': 'awesomemock',
-                        'NG_API_MOCK_BASE_URL': 'http://localhost:9000',
-                        'NG_API_MOCK_BASE_PATH':  'myapimock'
+                        NG_API_MOCK_BASE_IDENTIFIER: 'awesomemock',
+                        NG_API_MOCK_BASE_URL: 'http://localhost:9000',
+                        NG_API_MOCK_BASE_PATH: 'myapimock'
                     };
                     return envVars[envName];
                 };
@@ -458,7 +448,7 @@ describe('CypressPlugin', () => {
         });
 
         it('sets the variable', () => {
-            expect(setVariablesFn).toHaveBeenCalledWith({one: 'first'});
+            expect(setVariablesFn).toHaveBeenCalledWith({ one: 'first' });
         });
     });
 

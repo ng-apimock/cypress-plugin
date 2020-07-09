@@ -24,6 +24,7 @@
         "target": "es2015",
         "types": [
             "jest",
+            "chai",
             "cypress",
             "node"
         ]
