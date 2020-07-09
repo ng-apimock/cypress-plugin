@@ -1,4 +1,4 @@
-# ng-apimock/cypress-plugin [![CircleCI](https://circleci.com/gh/ng-apimock/cypress-plugin.svg?style=svg)](https://circleci.com/gh/ng-apimock/cypress-plugin)  [![dependency Status](https://img.shields.io/david/ng-apimock/cypress-plugin.svg)](https://david-dm.org/ng-apimock/cypress-plugin) [![devDependency Status](https://img.shields.io/david/dev/ng-apimock/cypress-plugin.svg)](https://david-dm.org/ng-apimock/cypress-plugin#info=devDependencies)
+# ng-apimock/cypress-plugin [![npm](https://img.shields.io/npm/v/@ng-apimock/cypress-plugin?color=brightgreen)](https://www.npmjs.com/package/@ng-apimock/cypress-plugin) [![Build Status](https://github.com/ng-apimock/cypress-plugin/workflows/CI/badge.svg)](https://github.com/ng-apimock/cypress-plugin/actions?workflow=CI) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ng-apimock_cypress-plugin&metric=alert_status)](https://sonarcloud.io/dashboard?id=ng-apimock_cypress-plugin) [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/) [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-brightgreen.svg)](https://github.com/semantic-release/semantic-release) [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=ng-apimock/cypress-plugin)](https://dependabot.com) [![dependency Status](https://img.shields.io/david/ng-apimock/cypress-plugin.svg)](https://david-dm.org/ng-apimock/cypress-plugin) [![devDependency Status](https://img.shields.io/david/dev/ng-apimock/cypress-plugin.svg)](https://david-dm.org/ng-apimock/cypress-plugin#info=devDependencies) ![npm downloads](https://img.shields.io/npm/dm/@ng-apimock/cypress-plugin)
 The cypress plugin for ng-apimock. 
 
 ### Usage
@@ -38,7 +38,6 @@ describe('Some test', () => {
 ### Available plugin functions
 The following functions are available. Each plugin function returns a promise.
 
-initializeNgApimock
 ##### initializeNgApimock(): Promise<any>;
 Initializes apimock for concurrent testing. (sets a cookie)
 [@ng-apimock/core](https://github.com/ng-apimock/core) uses a cookie to make sure that parallel tests don't intervene with each other).
