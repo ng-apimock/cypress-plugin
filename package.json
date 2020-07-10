@@ -14,7 +14,7 @@
     "compile": "tsc -p tsconfig.json",
     "postcompile": "copyfiles -u 1 src/**/*.d.ts dist",
     "lint": "eslint \"src/**/*.ts\"",
-    "postlint": "eslint \"test/**/*.js\" --rule 'jest/valid-expect: [off]' --rule 'import/named: [off]'",
+    "postlint": "eslint \"test/**/*.js\" --rule \"jest/valid-expect: off\" --rule \"import/named: off\"",
     "lint:fix": "npm run lint -- --fix",
     "start": "node test/server.js",
     "test": "jest --config=jest.config.js -w 1",
