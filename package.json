@@ -86,7 +86,7 @@
     "typescript": "3.9.6"
   },
   "dependencies": {
-    "@ng-apimock/base-client": "2.0.0",
+    "@ng-apimock/base-client": "2.0.1",
     "urljoin": "0.1.5"
   },
   "husky": {
