@@ -30,7 +30,7 @@ export class CypressPlugin implements Client {
 
         if (Cypress.env('NG_API_MOCK_ENABLE_LOGS') != null) {
             try {
-                this.isLogsEnabled = Boolean(JSON.parse(Cypress.env('NG_API_MOCK_ENABLE_LOGS')));
+                this.isLogsEnabled = JSON.parse(Cypress.env('NG_API_MOCK_ENABLE_LOGS'));
             } catch (e) {
                 throw new Error('Unexpected value for NG_API_MOCK_ENABLE_LOGS env var, please provide string value: `true` or `false`');
             }
