@@ -15,7 +15,7 @@ require('@ng-apimock/cypress-plugin').load();
 Use **NG_API_MOCK_ENABLE_LOGS** with a string value of "true" or "false". Default: "true".
 Use **NG_API_MOCK_BASE_URL** with a string value of base url of your ng-apimock server
 
-```json
+```js
 {
   "env": {
     "NG_API_MOCK_BASE_IDENTIFIER": "my-identifier", // optional: defaults to apimockId (the cookie identifier)
