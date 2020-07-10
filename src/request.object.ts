@@ -1,5 +1,6 @@
 /** Request object. */
 export interface RequestObject {
+    agent?: any;
     url: string;
     method: string;
     log: boolean;
@@ -9,5 +10,5 @@ export interface RequestObject {
 
 /** Request headers. */
 export interface RequestHeaders {
-    [key: string]: string;
+    [key: string]: any;
 }

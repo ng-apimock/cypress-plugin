@@ -10,14 +10,15 @@
   "main": "dist/index.js",
   "types": "dist/cypress.d.ts",
   "scripts": {
-    "start": "node test/server.js",
     "precompile": "rm -rf dist",
     "compile": "tsc -p tsconfig.json",
     "postcompile": "copyfiles -u 1 src/**/*.d.ts dist",
-    "lint": "tslint -p tsconfig.json",
-    "test": "jasmine-ts --config=jasmine.json",
-    "cypress-local": "cypress open",
-    "cypress-ci": "cypress run"
+    "lint": "eslint \"src/**/*.ts\"",
+    "postlint": "eslint \"test/**/*.js\" --rule \"jest/valid-expect: off\" --rule \"import/named: off\"",
+    "lint:fix": "npm run lint -- --fix",
+    "start": "node test/server.js",
+    "test": "jest --config=jest.config.js -w 1",
+    "cypress-local": "cypress open"
   },
   "repository": {
     "type": "git",
@@ -41,37 +42,63 @@
     "plugin"
   ],
   "devDependencies": {
-    "@ng-apimock/core": "1.0.25",
+    "@commitlint/cli": "9.0.1",
+    "@commitlint/config-conventional": "9.0.1",
+    "@ng-apimock/core": "2.1.0",
     "@ng-apimock/test-application": "1.0.17",
+    "@semantic-release/changelog": "5.0.1",
+    "@semantic-release/commit-analyzer": "8.0.1",
+    "@semantic-release/git": "9.0.0",
+    "@semantic-release/github": "7.0.7",
+    "@semantic-release/npm": "7.0.5",
+    "@semantic-release/release-notes-generator": "9.0.1",
     "@types/chai": "4.2.11",
     "@types/connect": "3.4.33",
-    "@types/fs-extra": "9.0.0",
-    "@types/jasmine": "3.5.10",
-    "@types/node": "14.0.1",
-    "@types/sinon": "9.0.1",
+    "@types/fs-extra": "9.0.1",
+    "@types/jest": "26.0.4",
+    "@types/node": "14.0.20",
     "@types/url-join": "4.0.0",
-    "@types/uuid": "7.0.3",
+    "@types/uuid": "8.0.0",
+    "@typescript-eslint/eslint-plugin": "3.6.0",
+    "@typescript-eslint/parser": "3.6.0",
     "bluebird": "3.7.2",
     "chai": "4.2.0",
+    "commitizen": "4.1.2",
     "connect": "3.7.0",
-    "copyfiles": "2.2.0",
+    "copyfiles": "2.3.0",
     "cypress": "4.5.0",
-    "cypress-cucumber-preprocessor": "2.3.1",
-    "eventemitter2": "6.4.0",
-    "fs-extra": "9.0.0",
-    "jasmine": "3.5.0",
-    "jasmine-ts": "0.3.0",
+    "cypress-cucumber-preprocessor": "2.5.3",
+    "eslint": "7.4.0",
+    "eslint-config-airbnb-base": "14.2.0",
+    "eslint-plugin-cypress": "2.11.1",
+    "eslint-plugin-import": "2.22.0",
+    "eslint-plugin-jest": "23.18.0",
+    "eventemitter2": "6.4.3",
+    "fs-extra": "9.0.1",
+    "husky": "4.2.5",
+    "jest": "26.1.0",
+    "jest-matchers": "20.0.3",
+    "lint-staged": "10.2.11",
+    "semantic-release": "17.1.1",
     "serve-static": "1.14.1",
-    "sinon": "9.0.2",
-    "ts-node": "8.10.1",
-    "tslint": "6.1.2",
-    "tslint-eslint-rules": "5.4.0",
-    "typescript": "3.9.2",
-    "vrsource-tslint-rules": "6.0.0"
+    "ts-jest": "26.1.1",
+    "ts-node": "8.10.2",
+    "typescript": "3.9.6"
   },
   "dependencies": {
-    "@ng-apimock/base-client": "1.0.15",
+    "@ng-apimock/base-client": "2.0.0",
     "urljoin": "0.1.5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "lint-staged": {
+    "**/**.{ts}": [
+      "eslint --fix"
+    ]
   },
   "peerDependencies": {
     "cypress": "4.x"

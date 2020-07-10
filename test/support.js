@@ -1,1 +1,2 @@
-require('../dist/index.js').load();
+require('../dist/index.js')
+    .load();
