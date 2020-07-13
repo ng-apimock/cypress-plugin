@@ -42,7 +42,7 @@
     "plugin"
   ],
   "devDependencies": {
-    "@commitlint/cli": "9.0.1",
+    "@commitlint/cli": "9.1.1",
     "@commitlint/config-conventional": "9.0.1",
     "@ng-apimock/core": "2.1.0",
     "@ng-apimock/test-application": "1.0.17",
