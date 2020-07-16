@@ -1,9 +1,4 @@
----
-id: cypress-plugin
-title: Cypress plugin
-sidebar_label: Cypress plugin
----
-[![npm](https://img.shields.io/npm/v/@ng-apimock/cypress-plugin?color=brightgreen)](https://www.npmjs.com/package/ng-apimock/cypress-plugin) <br />
+[![npm](https://img.shields.io/npm/v/@ng-apimock/cypress-plugin?color=brightgreen)](https://www.npmjs.com/package/@ng-apimock/cypress-plugin) <br />
 [@ng-apimock/cypress-plugin](https://github.com/ng-apimock/cypress-plugin) is the [cypress](https://www.cypress.io/) plugin for [@ng-apimock/core](https://github.com/ng-apimock/core).
 
 This plugin connects to [@ng-apimock/core](https://github.com/ng-apimock/core) middelware and makes the all its features available in the tests.
