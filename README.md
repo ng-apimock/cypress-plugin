@@ -10,4 +10,4 @@ The cypress plugin for ng-apimock.
  
 [gettingStarted]: https://ngapimock.org/docs/plugins/cypress-plugin
 [api]: https://ngapimock.org/docs/api/select-scenario
-[changelog]: https://github.com/ng-apimock/core/blob/master/CHANGELOG.md
+[changelog]: https://github.com/ng-apimock/cypress-plugin/blob/master/CHANGELOG.md
