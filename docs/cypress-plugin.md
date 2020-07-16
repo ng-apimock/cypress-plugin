@@ -1,4 +1,4 @@
-[![npm](https://img.shields.io/npm/v/@ng-apimock/cypress-plugin?color=brightgreen)](https://www.npmjs.com/package/@ng-apimock/cypress-plugin) <br />
+[![npm](https://img.shields.io/npm/v/@ng-apimock/cypress-plugin?color=brightgreen)](https://www.npmjs.com/package/@ng-apimock/cypress-plugin) [![Build Status](https://github.com/ng-apimock/cypress-plugin/workflows/CI/badge.svg)](https://github.com/ng-apimock/cypress-plugin/actions?workflow=CI) <br />
 [@ng-apimock/cypress-plugin](https://github.com/ng-apimock/cypress-plugin) is the [cypress](https://www.cypress.io/) plugin for [@ng-apimock/core](https://github.com/ng-apimock/core).
 
 This plugin connects to [@ng-apimock/core](https://github.com/ng-apimock/core) middelware and makes the all its features available in the tests.
