@@ -43,7 +43,7 @@
   ],
   "devDependencies": {
     "@commitlint/cli": "9.1.2",
-    "@commitlint/config-conventional": "9.1.2",
+    "@commitlint/config-conventional": "11.0.0",
     "@ng-apimock/core": "2.3.2",
     "@ng-apimock/test-application": "1.0.17",
     "@semantic-release/changelog": "5.0.1",
