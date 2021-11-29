@@ -10,7 +10,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    container: cypress/browsers:node13.6.0-chrome80-ff72
     steps:
       - uses: actions/checkout@v2
         with:
@@ -24,9 +23,9 @@ jobs:
       - name: build
         run: yarn compile
       - name: integration test
-        uses: cypress-io/github-action@v2.11.7
+        uses: cypress-io/github-action@v2
         with:
-          start: npm  start
+          start: yarn start
           wait-on: 'http://localhost:3000'
           browser: chrome
         env:
