@@ -1,7 +1,7 @@
 {
   "name": "@ng-apimock/cypress-plugin",
   "description": "Cypress plugin for ng-apimock",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "homepage": "https://github.com/ng-apimock/cypress-plugin#readme",
   "author": {
     "name": "Mischa Dasberg",
