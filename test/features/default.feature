@@ -6,21 +6,27 @@ Feature: Default responses
   Background:
     Given ng-apimock has been initialized
     And the following mocks state:
-      | name      | scenario          |
-      | get items | crypto-currencies |
-      | post item | ok                |
+      | name              | scenario |
+      | get repositories  | ok       |
+      | create repository | ok       |
+      | readme            | ok       |
 
-  Scenario: Get the items
-    Given I open the test page
-    And I get the items
-    Then the crypto-currencies response is returned for get items
-
-  Scenario: Get the items as jsonp
-    Given I open the test page
-    And I get the items as jsonp
-    Then the crypto-currencies response is returned for get items
-
-  Scenario: Post the item
-    Given I open the test page
-    When I enter Ripple and post the item
-    Then the ok response is returned for post item
+  # When getting the repositories the following things will be tested:
+  # - initializing of apimock
+  # - http get support
+  # - default response
+  Scenario: Get request - shown in the repository overview
+    Given I open the page
+    Then the following repositories are shown:
+      | name           |
+      | core           |
+      | dev-interface  |
+      | cypress-plugin |
+#
+#  # When creating a repository the following things will be tested:
+#  # - http post support
+#  # - chaining
+  Scenario: Post request - usecase: create repository
+    Given I open the page
+    When I try to create a repository
+    Then the repository is added

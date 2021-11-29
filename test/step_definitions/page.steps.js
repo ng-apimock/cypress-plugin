@@ -1,74 +1,68 @@
 import * as path from 'path';
 
-import { expect } from 'chai';
-import { Given, Then, When } from 'cypress-cucumber-preprocessor/steps';
+import {
+    Before, Given, When, Then
+} from 'cypress-cucumber-preprocessor/steps';
 
 import { PagePO } from '../pos/page.po';
 
-const mocksDirectory = './node_modules/@ng-apimock/test-application/mocks';
+Before(() => Cypress.automation('remote:debugger:protocol', {
+    command: 'Network.clearBrowserCache' // we don't want to have cached responses
+}));
 
-Given(/^I open the test page$/, () => PagePO.open());
+Given(/^I open the page$/, () => {
+    PagePO.navigate();
+});
 
-When(/^I download the binary file$/, () => {
+Given(/^I refresh/, () => {
+    cy.get('body').type('{esc}');
+    PagePO.refresh();
+});
+
+Given(/^I try to create a repository/, () => {
+    PagePO.navigate('/#/repos;action=new');
+    PagePO.repositoryName.clear();
+    PagePO.repositoryName.type('some-awesome-plugin');
+    PagePO.repositoryDescription.type('Some awesome plugin');
+    PagePO.createRepository.click();
+});
+
+When(/^I download the readme for the repository (.*)$/,
+    (repository) => PagePO.downloadReadmeForRepository(repository));
+
+Then(/^the following repositories are shown:$/, (dataTable) => {
+    const hashes = dataTable.hashes();
+
+    hashes.forEach((h, index) => {
+        Object.keys(hashes[0]).forEach((f) => {
+            PagePO.repositories.then(() => cy.get(`mat-row>.mat-column-${f}`))
+                .eq(index)
+                .should('contain', h[f]);
+        });
+    });
+});
+
+Then(/^the repository is added$/, () => {
+    const addedRepositoryName = 'some-awesome-plugin';
+    PagePO.repositories.then(() => cy.get('mat-row>.mat-column-name')
+        .should('contain', addedRepositoryName));
+});
+
+When(/^An error with message (.*) has occured$/, (message) => {
+    PagePO.error().should('contain', message);
+    cy.get('body').type('{esc}');
+});
+
+Then(/^the repositories are fetched$/, () => PagePO.repositories.should('exist'));
+
+Then(/^the repositories are not yet fetched$/, () => PagePO.repositories.should('not.exist'));
+
+Then(/^the README is downloaded$/, () => {
     // @todo implement
-});
+    // cy.readFile()
+    const downloadsFolder = Cypress.config('downloadsFolder');
+    const readme = path.join(downloadsFolder, 'README.md');
 
-When(/^I enter (.*) and post the item$/, (data) => PagePO.input.type(data)
-    .then(() => PagePO.buttons.post.click()));
-
-When(/^I get the items$/, () => PagePO.buttons.get.click());
-
-When(/^I get the items as jsonp$/, () => PagePO.buttons.getAsJsonp.click());
-
-Then(/^the items are fetched$/, () => PagePO.done.contains('true'));
-
-Then(/^the items are not yet fetched$/, () => PagePO.done.contains('false'));
-
-Then(/^the response is interpolated with variable (.*)$/,
-    (variable) => PagePO.data.contains(variable));
-
-Then(/^the (.*) response is downloaded$/, (scenario) => {
-    // @todo implement
-});
-
-Then(/^the (.*) response is returned for get items$/, (scenario) => {
-    if (scenario === 'passThrough') {
-        return PagePO.data
-            .should(($div) => expect(JSON.parse($div.text())).to.deep.equal(['passThrough']))
-            .then(
-                () => PagePO.status.should(($div) => expect(parseInt($div.text())).to.equal(200))
-            );
-    }
-    return cy
-        .readFile(path.join(mocksDirectory, 'get-items.mock.json'), { log: false })
-        .then((mocks) => PagePO.data
-            .should(($div) => {
-                if (mocks.responses[scenario].data !== undefined) {
-                    expect(JSON.parse($div.text())).to.deep
-                        .equal(mocks.responses[scenario].data);
-                }
-            })
-            .then(() => PagePO.status.should(($div) => expect(parseInt($div.text())).to
-                .equal(mocks.responses[scenario].status))));
-});
-
-Then(/^the (.*) response is returned for post item$/, (scenario) => {
-    if (scenario === 'passThrough') {
-        return PagePO.data
-            .should(($div) => expect(JSON.parse($div.text())).to.deep.equal(['passThrough']))
-            .then(
-                () => PagePO.status.should(($div) => expect(parseInt($div.text())).to.equal(200))
-            );
-    }
-    return cy
-        .readFile(path.join(mocksDirectory, 'post-item.mock.json'), { log: false })
-        .then((mocks) => PagePO.data
-            .should(($div) => {
-                if (mocks.responses[scenario].data !== undefined) {
-                    expect(JSON.parse($div.text())).to.deep
-                        .equal(mocks.responses[scenario].data);
-                }
-            })
-            .then(() => PagePO.status.should(($div) => expect(parseInt($div.text())).to
-                .equal(mocks.responses[scenario].status))));
+    cy.readFile(readme, 'binary', { timeout: 15000 })
+        .should((buffer) => expect(buffer.length).to.be.gt(1));
 });

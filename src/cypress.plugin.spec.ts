@@ -3,6 +3,16 @@ import { EventEmitter2 } from 'eventemitter2';
 
 import { CypressPlugin } from './cypress.plugin';
 
+function promisify(chain: any) {
+    return new Promise((resolve) => {
+        function resolvePromise(value: any) {
+            resolve(value);
+        }
+
+        chain.then(resolvePromise);
+    });
+}
+
 describe('CypressPlugin', () => {
     let requestFn: jest.Mock;
     let setCookieFn: jest.Mock;
@@ -49,8 +59,6 @@ describe('CypressPlugin', () => {
                 plugin = new CypressPlugin();
             });
 
-            it('sets the apimock id', () => expect(plugin.ngApimockId).toBeDefined());
-
             it('sets the baseUrl', () => expect(plugin.baseUrl).toBe('http://localhost:9000/ngapimock'));
 
             it('sets the logging option', () => expect(plugin.isLogsEnabled).toBe(true));
@@ -70,8 +78,6 @@ describe('CypressPlugin', () => {
                 };
                 plugin = new CypressPlugin();
             });
-
-            it('sets the apimock id', () => expect(plugin.ngApimockId).toBeDefined());
 
             it('sets the baseUrl', () => expect(plugin.baseUrl).toBe('http://localhost:9000/myapimock'));
 
@@ -104,8 +110,57 @@ describe('CypressPlugin', () => {
 
             it('throws on the wrong logging option', () => {
                 // eslint-disable-next-line no-new
-                expect(() => { new CypressPlugin(); })
+                expect(() => {
+                    // eslint-disable-next-line no-new
+                    new CypressPlugin();
+                })
                     .toThrowError('Unexpected value for NG_API_MOCK_ENABLE_LOGS env var, please provide string value: `true` or `false`');
+            });
+        });
+    });
+
+    describe('createPreset', () => {
+        let invokeFn: jest.Mock;
+        let getMocksFn: jest.Mock;
+        let getVariablesFn: jest.Mock;
+
+        beforeEach(() => {
+            invokeFn = plugin.invoke = jest.fn();
+            invokeFn.mockReturnValue(Promise.resolve());
+            getMocksFn = plugin.getMocks = jest.fn();
+            getVariablesFn = plugin.getVariables = jest.fn();
+
+            getMocksFn.mockResolvedValue({ state: { name: 'my-mock' } });
+            getVariablesFn.mockResolvedValue({ state: { name: 'my-variable' } });
+        });
+
+        it('persists the preset with mocks and variables', async () => {
+            await promisify(plugin.createPreset('my-preset', true, true));
+
+            expect(invokeFn).toHaveBeenCalledWith('presets', 'POST', {
+                name: 'my-preset',
+                mocks: { name: 'my-mock' },
+                variables: { name: 'my-variable' }
+            });
+        });
+
+        it('persists the preset with mocks and without variables', async () => {
+            await promisify(plugin.createPreset('my-preset', true, false));
+
+            expect(invokeFn).toHaveBeenCalledWith('presets', 'POST', {
+                name: 'my-preset',
+                mocks: { name: 'my-mock' },
+                variables: { }
+            });
+        });
+
+        it('persists the preset with out mocks and with variables', async () => {
+            await promisify(plugin.createPreset('my-preset', false, true));
+
+            expect(invokeFn).toHaveBeenCalledWith('presets', 'POST', {
+                name: 'my-preset',
+                mocks: { },
+                variables: { name: 'my-variable' }
             });
         });
     });
@@ -117,7 +172,7 @@ describe('CypressPlugin', () => {
             invokeFn = plugin.invoke = jest.fn();
             invokeFn.mockReturnValue(Promise.resolve());
 
-            await plugin.delayResponse('name', 1000);
+            await promisify(plugin.delayResponse('name', 1000));
         });
 
         it('delays the mock response', () => {
@@ -133,7 +188,7 @@ describe('CypressPlugin', () => {
             invokeFn = plugin.invoke = jest.fn();
             invokeFn.mockReturnValue(Promise.resolve());
 
-            await plugin.deleteVariable('one');
+            await promisify(plugin.deleteVariable('one'));
         });
 
         it('deletes the variable', () => {
@@ -149,7 +204,7 @@ describe('CypressPlugin', () => {
             invokeFn = plugin.invoke = jest.fn();
             invokeFn.mockReturnValue(Promise.resolve());
 
-            await plugin.echoRequest('name', true);
+            await promisify(plugin.echoRequest('name', true));
         });
 
         it('enables the mock request echo', () => {
@@ -165,7 +220,7 @@ describe('CypressPlugin', () => {
             invokeFn = plugin.invoke = jest.fn();
             invokeFn.mockResolvedValue({ body: { some: 'thing' } });
 
-            await plugin.getMocks();
+            await promisify(plugin.getMocks());
         });
 
         it('gets the mocks', () => {
@@ -181,7 +236,7 @@ describe('CypressPlugin', () => {
             invokeFn = plugin.invoke = jest.fn();
             invokeFn.mockResolvedValue({ body: { some: 'thing' } });
 
-            await plugin.getPresets();
+            await promisify(plugin.getPresets());
         });
 
         it('gets the presets', () => {
@@ -197,7 +252,7 @@ describe('CypressPlugin', () => {
             invokeFn = plugin.invoke = jest.fn();
             invokeFn.mockResolvedValue({ body: { some: 'thing' } });
 
-            await plugin.getRecordings();
+            await promisify(plugin.getRecordings());
         });
 
         it('gets the recordings', () => {
@@ -213,7 +268,7 @@ describe('CypressPlugin', () => {
             invokeFn = plugin.invoke = jest.fn();
             invokeFn.mockResolvedValue({ body: { some: 'thing' } });
 
-            await plugin.getVariables();
+            await promisify(plugin.getVariables());
         });
 
         it('gets the variables', () => {
@@ -311,6 +366,27 @@ describe('CypressPlugin', () => {
                 expect(actualRequest.body).toEqual({ some: 'body' });
             });
         });
+
+        describe('protocal is https', () => {
+            beforeEach(() => {
+                requestFn.mockResolvedValue({ status: 200 });
+
+                plugin.baseUrl = 'https://localhost:9000';
+            });
+
+            it('calls the api without body', () => {
+                plugin.invoke('https://some/query', 'GET', { some: 'body' });
+
+                expect(requestFn).toHaveBeenCalled();
+
+                // const actualRequest = requestFn.mock.calls[0][0];
+                // expect(actualRequest.url).toBe('http://localhost:9000/ngapimock/some/query');
+                // expect(actualRequest.method).toBe('PUT');
+                // expect((actualRequest as any).agent).toBeUndefined();
+                // expect(actualRequest.headers['Content-Type']).toBe('application/json');
+                // expect(actualRequest.body).toEqual({ some: 'body' });
+            });
+        });
     });
 
     describe('recordRequests', () => {
@@ -320,7 +396,7 @@ describe('CypressPlugin', () => {
             invokeFn = plugin.invoke = jest.fn();
             invokeFn.mockReturnValue(Promise.resolve());
 
-            await plugin.recordRequests(true);
+            await promisify(plugin.recordRequests(true));
         });
 
         it('enables the recording the requests', () => {
@@ -339,7 +415,7 @@ describe('CypressPlugin', () => {
             invokeFn = plugin.invoke = jest.fn();
             invokeFn.mockReturnValue(Promise.resolve());
 
-            await plugin.resetMocksToDefault();
+            await promisify(plugin.resetMocksToDefault());
         });
 
         it('resets the mocks to defaults', () => {
@@ -355,7 +431,7 @@ describe('CypressPlugin', () => {
             invokeFn = plugin.invoke = jest.fn();
             invokeFn.mockReturnValue(Promise.resolve());
 
-            await plugin.selectPreset('preset name');
+            await promisify(plugin.selectPreset('preset name'));
         });
 
         it('selects the preset', () => {
@@ -371,7 +447,7 @@ describe('CypressPlugin', () => {
             invokeFn = plugin.invoke = jest.fn();
             invokeFn.mockReturnValue(Promise.resolve());
 
-            await plugin.selectScenario('name', 'scenario');
+            await promisify(plugin.selectScenario('name', 'scenario'));
         });
 
         it('selects the mock scenario', () => {
@@ -390,7 +466,7 @@ describe('CypressPlugin', () => {
             invokeFn = plugin.invoke = jest.fn();
             invokeFn.mockReturnValue(Promise.resolve());
 
-            await plugin.setMocksToPassThrough();
+            await promisify(plugin.setMocksToPassThrough());
         });
 
         it('sets mocks to passThrough', () => {
@@ -405,8 +481,10 @@ describe('CypressPlugin', () => {
                 requestFn.mockResolvedValue(Promise.resolve());
                 setCookieFn.mockResolvedValue(Promise.resolve());
 
-                await plugin.setNgApimockCookie();
+                await promisify(plugin.setNgApimockCookie());
             });
+
+            it('sets the apimock id', () => expect(plugin.ngApimockId).toBeDefined());
 
             it('opens the init url', () => expect(requestFn).toHaveBeenCalledWith('http://localhost:9000/ngapimock/init'));
 
@@ -430,7 +508,7 @@ describe('CypressPlugin', () => {
                 plugin = new CypressPlugin();
                 plugin.ngApimockId = '123';
 
-                await plugin.setNgApimockCookie();
+                await promisify(plugin.setNgApimockCookie());
             });
 
             it('opens the init url', () => expect(requestFn).toHaveBeenCalledWith('http://localhost:9000/myapimock/init'));
@@ -440,16 +518,20 @@ describe('CypressPlugin', () => {
     });
 
     describe('setVariable', () => {
-        let setVariablesFn: jest.Mock;
+        // let setVariablesFn: jest.Mock;
+        let invokeFn: jest.Mock;
 
         beforeEach(async () => {
-            setVariablesFn = plugin.setVariables = jest.fn();
+            invokeFn = plugin.invoke = jest.fn();
+            invokeFn.mockReturnValue(Promise.resolve());
 
-            await plugin.setVariable('one', 'first');
+            await promisify(plugin.setVariable('one', 'first'));
         });
 
         it('sets the variable', () => {
-            expect(setVariablesFn).toHaveBeenCalledWith({ one: 'first' });
+            expect(invokeFn).toHaveBeenCalledWith('variables', 'PUT', {
+                one: 'first'
+            });
         });
     });
 
@@ -460,7 +542,7 @@ describe('CypressPlugin', () => {
             invokeFn = plugin.invoke = jest.fn();
             invokeFn.mockReturnValue(Promise.resolve());
 
-            await plugin.setVariables({ one: 'first', enabled: true });
+            await promisify(plugin.setVariables({ one: 'first', enabled: true }));
         });
 
         it('sets the variables', () => {

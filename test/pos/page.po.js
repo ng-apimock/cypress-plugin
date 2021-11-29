@@ -1,28 +1,37 @@
-const { PageButtons } = require('./page-buttons.po');
-
 class PagePO {
-    static get data() {
-        return cy.get('.data');
+    static get repositories() {
+        return cy.get('.repositories');
     }
 
-    static get buttons() {
-        return new PageButtons();
+    static get repositoryName() {
+        return cy.get('input[formcontrolname=\'name\']');
     }
 
-    static get done() {
-        return cy.get('.done');
+    static get repositoryDescription() {
+        return cy.get('input[formcontrolname=\'description\']');
     }
 
-    static get input() {
-        return cy.get('#item');
+    static get createRepository() {
+        return cy.get('button:contains("Submit")');
     }
 
-    static open() {
-        cy.visit('/index.html');
+    static downloadReadmeForRepository(name) {
+        this.repositories
+            .then(() => cy.get('mat-row>.mat-column-name'))
+            .contains(name).parent()
+            .within(() => cy.get('button:contains("Download readme")').click());
     }
 
-    static get status() {
-        return cy.get('.status');
+    static navigate(destination = '/index.html') {
+        cy.visit(destination);
+    }
+
+    static refresh() {
+        return cy.get('button:contains("Refresh")').click();
+    }
+
+    static error() {
+        return cy.get('.mat-dialog-title');
     }
 }
 
