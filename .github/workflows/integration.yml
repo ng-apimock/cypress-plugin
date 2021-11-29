@@ -10,17 +10,19 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    container: cypress/browsers:node12.13.0-chrome78-ff70
+    container: cypress/browsers:node13.6.0-chrome80-ff72
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
         with:
-          node-version: 12
+          fetch-depth: 0
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
           registry-url: https://registry.npmjs.org
       - name: install
-        run: npm ci
+        run: yarn install --frozen-lockfile
       - name: build
-        run: npm run compile
+        run: yarn compile
       - name: integration test
         uses: cypress-io/github-action@v2.2.2
         with:
