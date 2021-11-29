@@ -24,7 +24,7 @@ jobs:
       - name: build
         run: yarn compile
       - name: integration test
-        uses: cypress-io/github-action@v2.2.2
+        uses: cypress-io/github-action@v2.11.7
         with:
           start: npm  start
           wait-on: 'http://localhost:3000'
