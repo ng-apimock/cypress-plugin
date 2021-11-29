@@ -1,8 +1,8 @@
 {
   "projectId": "@ng-apimock/cypress-plugin",
-  "baseUrl": "http://localhost:3000",
+  "baseUrl": "http://localhost:9999",
   "env": {
-    "NG_API_MOCK_BASE_URL": "http://localhost:3000",
+    "NG_API_MOCK_BASE_URL": "http://localhost:9999",
     "NG_API_MOCK_ENABLE_LOGS": "false"
   },
   "integrationFolder": "test/features",

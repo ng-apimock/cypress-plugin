@@ -12,25 +12,31 @@ Feature: Update mock state
 
   Background:
     Given ng-apimock has been initialized
-    Given the following mocks state:
-      | name      | scenario          |
-      | get items | crypto-currencies |
-      | post item | ok                |
+    And the following mocks state:
+      | name              | scenario |
+      | get repositories  | ok       |
+      | create repository | ok       |
+      | readme            | ok       |
 
-    # Verify after selecting a scenario
+  # When selecting a scenario the following things will be tested:
+  # - select scenario
+  Scenario: Select scenario
+    Given I open the page
+    When I select scenario ok-added for mock get repositories
+    And I refresh
+    Then the following repositories are shown:
+      | name                |
+      | core                |
+      | dev-interface       |
+      | cypress-plugin      |
+      | some-awesome-plugin |
 
-  Scenario: Update the mock state scenario and get the items
-    Given I open the test page
-    When I select scenario crypto-exchanges for mock get items
-    And I get the items
-    Then the crypto-exchanges response is returned for get items
-
-    # Verify after delaying the response
-
-  Scenario: Update the mock state delay and get the items
-    Given I open the test page
-    When I set delay to 2000 for mock get items
-    And I get the items
-    Then the items are not yet fetched
+  # When selecting a scenario the following things will be tested:
+  # - delay response
+  Scenario: Delay the response
+    Given I open the page
+    When I set delay to 2000 for mock get repositories
+    And I refresh
+    Then the repositories are not yet fetched
     When I wait a 2000 milliseconds
-    Then the items are fetched
+    Then the repositories are fetched

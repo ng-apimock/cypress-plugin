@@ -11,29 +11,39 @@ Feature: Actions
   Background:
     Given ng-apimock has been initialized
     And the following mocks state:
-      | name      | scenario          |
-      | get items | crypto-currencies |
-      | post item | ok                |
+      | name              | scenario |
+      | get repositories  | ok       |
+      | create repository | ok       |
+      | readme            | ok       |
 
-   # Verify after resetting the mock state to default
-
+  # When resetting the following things will be tested:
+  # - initializing of apimock
+  # - select scenario
+  # - delay response
+  # - reset to defaults
   Scenario: Reset mock state to defaults
-    Given I open the test page
-    When I select scenario crypto-exchanges for mock get items
-    And I set delay to 2000 for mock get items
-    And I select scenario nok for mock post item
-    And I set delay to 2000 for mock post item
-    And I reset the mocks to default
-    And I get the items
-    Then the crypto-currencies response is returned for get items
-    And the ok response is returned for post item
+    Given I open the page
+    When I select scenario server-error for mock get repositories
+    And I set delay to 2000 for mock get repositories
+    When I refresh
+    Then An error with message Internal Server Error has occured
+    When I reset the mocks to default
+    And I refresh
+    Then the following repositories are shown:
+      | name           |
+      | core           |
+      | dev-interface  |
+      | cypress-plugin |
 
-   # Verify after resetting the scenario's to passThrough
-
+  # When setting to passThroughs the following things will be tested:
+  # - initializing of apimock
+  # - set to passThroughs
   Scenario: Set mocks to passThroughs
-    Given I open the test page
-    And I set the mocks to passThroughs
-    And I get the items
-    Then the passThrough response is returned for get items
-    When I enter Ripple and post the item
-    Then the passThrough response is returned for post item
+    Given I open the page
+    When I set the mocks to passThroughs
+    And I refresh
+    Then the following repositories are shown:
+      | name        |
+      | base-client |
+    And I try to create a repository
+    Then An error with message Unauthorized has occured

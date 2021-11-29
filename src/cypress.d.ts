@@ -1,19 +1,21 @@
 declare namespace Cypress {
   interface Chainable<Subject = any> {
-      delayResponse(name: string, delay: number): Promise<any>;
-      deleteVariable(key: string): Promise<any>;
-      echoRequest(name: string, echo: boolean): Promise<any>;
-      getMocks(): Promise<any>;
-      getPresets(): Promise<any>;
-      getRecordings(): Promise<any>;
-      getVariables(): Promise<any>;
-      invoke(query: string, method: string, body: any): Promise<any>;
-      recordRequests(record: boolean): Promise<any>;
-      resetMocksToDefault(): Promise<any>;
-      selectPreset(name: string): Promise<any>;
-      selectScenario(name: string, scenario: string): Promise<any>;
-      setMocksToPassThrough(): Promise<any>;
-      setVariable(key: string, value: any): Promise<any>;
-      setVariables(variables: { [key: string]: any }): Promise<any>;
+      createPreset(name: string, includeMocks: boolean, includeVariables: boolean): Cypress.Chainable<any> ;
+      delayResponse(name: string, delay: number): Cypress.Chainable<any>;
+      deleteVariable(key: string): Cypress.Chainable<any>;
+      echoRequest(name: string, echo: boolean): Cypress.Chainable<any>;
+      getMocks(): Cypress.Chainable<any>;
+      getPresets(): Cypress.Chainable<any>;
+      getRecordings(): Cypress.Chainable<any>;
+      getVariables(): Cypress.Chainable<any>;
+      initializeNgApimock(): Cypress.Chainable<any>;
+      invoke(query: string, method: string, body: any): Cypress.Chainable<any>;
+      recordRequests(record: boolean): Cypress.Chainable<any>;
+      resetMocksToDefault(): Cypress.Chainable<any>;
+      selectPreset(name: string): Cypress.Chainable<any>;
+      selectScenario(name: string, scenario: string): Cypress.Chainable<any>;
+      setMocksToPassThrough(): Cypress.Chainable<any>;
+      setVariable(key: string, value: any): Cypress.Chainable<any>;
+      setVariables(variables: { [key: string]: any }): Cypress.Chainable<any>;
   }
 }

@@ -1,13 +1,13 @@
 import * as https from 'https';
 
-import { Client, Configuration } from '@ng-apimock/base-client';
+import { Configuration } from '@ng-apimock/base-client';
 import urljoin = require('url-join');
 import * as uuid from 'uuid';
 
 import { RequestObject } from './request.object';
 
 /** Cypress plugin for ng-apimock. */
-export class CypressPlugin implements Client {
+export class CypressPlugin {
     public ngApimockId: string;
     public baseUrl: string;
     public isLogsEnabled = true;
@@ -16,8 +16,6 @@ export class CypressPlugin implements Client {
 
     /** Constructor. */
     constructor() {
-        this.ngApimockId = uuid.v4();
-
         this.configuration = {
             ...JSON.parse(JSON.stringify({
                 identifier: Cypress.env('NG_API_MOCK_BASE_IDENTIFIER') || 'apimockid',
@@ -41,44 +39,89 @@ export class CypressPlugin implements Client {
         });
     }
 
-    /** {@inheritDoc}. */
-    delayResponse(name: string, delay: number): Promise<any> {
+    /**
+     * Creates a preset.
+     * @param name The name of the preset.
+     * @param {boolean} includeMocks Includes the mocks.
+     * @param {boolean} includeVariables Includes the variable.
+     * @return {chainable} chainable The chainable.
+     */
+    createPreset(name: string, includeMocks: boolean, includeVariables: boolean): Cypress.Chainable<any> {
+        return this.getMocks()
+            .then((m: any) => this.getVariables()
+                .then((v: any) => {
+                    const payload = {
+                        name,
+                        mocks: includeMocks ? m.state : {},
+                        variables: includeVariables ? v.state : {}
+                    };
+
+                    return this.invoke('presets', 'POST', payload)
+                        .then(cy.wrap);
+                }));
+    }
+
+    /**
+     * Delay the mock response.
+     * @param {string} name The mock name.
+     * @param {number} delay The delay.
+     * @return {Cypress.Chainable} chainable The chainable.
+     */
+    delayResponse(name: string, delay: number): Cypress.Chainable<any> {
         return this.invoke('mocks', 'PUT', { name, delay })
             .then(cy.wrap);
     }
 
-    /** {@inheritDoc}. */
-    deleteVariable(key: string): Promise<any> {
+    /**
+     * Delete the variable matching the given key.
+     * @param {string} key The key.
+     * @return {Cypress.Chainable} chainable The chainable.
+     */
+    deleteVariable(key: string): Cypress.Chainable<any> {
         return this.invoke(`variables/${key}`, 'DELETE', {})
             .then(cy.wrap);
     }
 
-    /** {@inheritDoc}. */
-    echoRequest(name: string, echo: boolean): Promise<any> {
+    /**
+     * Echo the request.
+     * @param {string} name The mock name.
+     * @param {boolean} echo Indicator echo.
+     * @return {Cypress.Chainable} chainable The chainable.
+     */
+    echoRequest(name: string, echo: boolean): Cypress.Chainable<any> {
         return this.invoke('mocks', 'PUT', { name, echo })
             .then(cy.wrap);
     }
 
-    /** {@inheritDoc}. */
-    getMocks(): Promise<any> {
+    /**
+     * Gets the mocks.
+     * @return {Cypress.Chainable} chainable The chainable.
+     */
+    getMocks(): Cypress.Chainable<any> {
         return this.invoke('mocks', 'GET', {})
             .then((response: any) => cy.wrap(response.body));
     }
 
-    /** {@inheritDoc}. */
-    getPresets(): Promise<any> {
+    /**
+     * Gets the presets.
+     * @return {Cypress.Chainable} chainable The chainable.
+     */
+    getPresets(): Cypress.Chainable<any> {
         return this.invoke('presets', 'GET', {})
             .then((response: any) => cy.wrap(response.body));
     }
 
-    /** {@inheritDoc}. */
-    getRecordings(): Promise<any> {
+    /**
+     * Gets the variables.
+     * @return {Cypress.Chainable} chainable The chainable.
+     */
+    getRecordings(): Cypress.Chainable<any> {
         return this.invoke('recordings', 'GET', {})
             .then((response: any) => cy.wrap(response.body));
     }
 
     /** {@inheritDoc}. */
-    getVariables(): Promise<any> {
+    getVariables(): Cypress.Chainable<any> {
         return this.invoke('variables', 'GET', {})
             .then((response: any) => cy.wrap(response.body));
     }
@@ -89,7 +132,7 @@ export class CypressPlugin implements Client {
      * @param {string} method The method.
      * @param {Object} body The body.
      */
-    invoke(query: string, method: string, body: any): Promise<any> {
+    invoke(query: string, method: string, body: any): Cypress.Chainable<any> {
         const url = urljoin(this.baseUrl, query);
         const requestObject: RequestObject = {
             method,
@@ -109,88 +152,93 @@ export class CypressPlugin implements Client {
             requestObject.agent = this.agent;
         }
 
-        return this.promisify(cy.request(requestObject))
-            .then((response: Response) => {
+        return cy.request(requestObject)
+            .then((response) => {
                 if (response.status !== 200) {
                     throw new Error(`An error occured while invoking ${url} that resulted in status code ${response.status}`);
                 }
-                return response;
             });
     }
 
-    /** {@inheritDoc}. */
-    recordRequests(record: boolean): Promise<any> {
+    /**
+     * Record the requests.
+     * @param {boolean} record Indicator record.
+     * @return {Cypress.Chainable} chainable The chainable.
+     */
+    recordRequests(record: boolean): Cypress.Chainable<any> {
         return this.invoke('actions', 'PUT', { action: 'record', record })
             .then(cy.wrap);
     }
 
-    /** {@inheritDoc}. */
-    resetMocksToDefault(): Promise<any> {
+    /**
+     * Sets for all the mocks the selected scenario back to the default.
+     * @return {Cypress.Chainable} chainable The chainable.
+     */
+    resetMocksToDefault(): Cypress.Chainable<any> {
         return this.invoke('actions', 'PUT', { action: 'defaults' })
             .then(cy.wrap);
     }
 
-    /** {@inheritDoc}. */
-    selectPreset(name: string): Promise<any> {
+    /**
+     * Selects the preset matching the given preset name.
+     * @param {string} name The mock name.
+     * @return {Cypress.Chainable} chainable The chainable.
+     */
+    selectPreset(name: string): Cypress.Chainable<any> {
         return this.invoke('presets', 'PUT', { name })
             .then(cy.wrap);
     }
 
-    /** {@inheritDoc}. */
-    selectScenario(name: string, scenario: string): Promise<any> {
+    /**
+     * Selects the scenario matching the given mock name and scenario.
+     * @param {string} name The mock name.
+     * @param {string} scenario The scenario name.
+     * @return {Cypress.Chainable} chainable The chainable.
+     */
+    selectScenario(name: string, scenario: string): Cypress.Chainable<any> {
         return this.invoke('mocks', 'PUT', { name, scenario })
             .then(cy.wrap);
     }
 
-    /** {@inheritDoc}. */
-    setMocksToPassThrough(): Promise<any> {
+    /**
+     * Sets for all the mocks the selected scenario to the passThrough.
+     * @return {Cypress.Chainable} chainable The chainable.
+     */
+    setMocksToPassThrough(): Cypress.Chainable<any> {
         return this.invoke('actions', 'PUT', { action: 'passThroughs' })
             .then(cy.wrap);
     }
 
-    /** {@inheritDoc}. */
-    setVariable(key: string, value: any): Promise<any> {
+    /**
+     * Sets the variable.
+     * @param {string} key The key.
+     * @param {any} value The value.
+     * @return {Cypress.Chainable} chainable The chainable.
+     */
+    setVariable(key: string, value: any): Cypress.Chainable<any> {
         const body: { [key: string]: any } = {};
         body[key] = value;
         return this.setVariables(body);
     }
 
-    /** {@inheritDoc}. */
-    setVariables(variables: { [key: string]: any }): Promise<any> {
+    /**
+     * Sets the variables.
+     * @param {Object} variables The variables.
+     * @return {Cypress.Chainable} chainable The chainable.
+     */
+    setVariables(variables: { [key: string]: any }): Cypress.Chainable<any> {
         return this.invoke('variables', 'PUT', variables)
             .then(cy.wrap);
     }
 
     /**
      * Sets the apimock cookie.
-     * @return {Promise} promise The promise.
+     * @return {Cypress.Chainable} chainable The chainable.
      */
-    setNgApimockCookie(): Promise<any> {
-        return new Cypress.Promise((resolve, reject) => {
-            cy.request(urljoin(this.baseUrl, 'init'))
-                .then(() => cy.setCookie(this.configuration.identifier, this.ngApimockId))
-                .then(() => resolve());
-        });
-    }
-
-    // Origin: https://github.com/NicholasBoll/cypress-promise/blob/master/index.js
-    private promisify(chain: any) {
-        return new Cypress.Promise((resolve, reject) => {
-            function rejectPromise(error: any) {
-                reject(error);
-                Cypress.off('fail', rejectPromise);
-            }
-
-            // // unsubscribe from test failure on both success and failure. This cleanup is essential
-            function resolvePromise(value: any) {
-                resolve(value);
-                Cypress.off('fail', rejectPromise);
-            }
-
-            // We must subscribe to failures and bail. Without this, the Cypress runner would never stop
-            Cypress.on('fail', rejectPromise);
-
-            chain.then(resolvePromise);
-        });
+    setNgApimockCookie(): Cypress.Chainable<any> {
+        this.ngApimockId = uuid.v4();
+        return cy.request(urljoin(this.baseUrl, 'init'))
+            .then(() => cy.setCookie(this.configuration.identifier, this.ngApimockId))
+            .then(cy.wrap);
     }
 }

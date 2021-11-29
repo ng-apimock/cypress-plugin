@@ -1,25 +1,30 @@
 const path = require('path');
 
 const apimock = require('@ng-apimock/core');
-const connect = require('connect');
-const serveStatic = require('serve-static');
+const express = require('express');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 
-const app = connect();
+const app = express();
+app.set('port', 9999);
+
 const mocksDirectory = path.join(require.resolve('@ng-apimock/test-application'), '..', 'mocks');
 
 apimock.processor.process({ src: mocksDirectory });
 app.use(apimock.middleware);
-app.use('/', serveStatic(path.join(require('@ng-apimock/test-application'))));
+app.use('/', express.static(path.join(require('@ng-apimock/test-application'))));
 
-app.use('/items', (request, response, next) => {
-    response.writeHead(200, { 'Content-Type': 'application/json' });
-    if (request.method === 'GET') {
-        response.end('["passThrough"]');
-    } else if (request.method === 'POST') {
-        response.end('["passThrough"]');
-    } else {
-        next();
-    }
+app.use('/orgs/ng-apimock', createProxyMiddleware({
+    target: 'https://api.github.com',
+    changeOrigin: true,
+    timeout: 5000,
+}));
+
+app.use('/ng-apimock', createProxyMiddleware({
+    target: 'https://raw.githubusercontent.com',
+    changeOrigin: true
+}));
+
+app.listen(app.get('port'), () => {
+    console.log('@ng-apimock/core running on port', app.get('port'));
+    console.log('@ng-apimock/test-application is available under /');
 });
-app.listen(3000);
-console.log('ng-apimock-angular-test-app is running on port 3000');
