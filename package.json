@@ -80,7 +80,7 @@
     "fs-extra": "10.0.0",
     "http-proxy-middleware": "2.0.1",
     "husky": "7.0.4",
-    "jest": "27.4.2",
+    "jest": "27.4.3",
     "jest-matchers": "20.0.3",
     "lint-staged": "12.1.2",
     "semantic-release": "18.0.1",
