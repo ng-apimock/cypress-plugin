@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.1.0](https://github.com/ng-apimock/cypress-plugin/compare/v2.0.0...v2.1.0) (2021-11-30)
+
+
+### Features
+
+* update peerdependency for cypress ([4e7dbbc](https://github.com/ng-apimock/cypress-plugin/commit/4e7dbbc0d6cf91c31bb4e83ffa80cc72d6516062)), closes [#210](https://github.com/ng-apimock/cypress-plugin/issues/210)
+
 # [2.0.0](https://github.com/ng-apimock/cypress-plugin/compare/v1.1.0...v2.0.0) (2021-11-29)
 
 
