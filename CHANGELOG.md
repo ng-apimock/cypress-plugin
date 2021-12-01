@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.2.0](https://github.com/ng-apimock/cypress-plugin/compare/v2.1.0...v2.2.0) (2021-12-01)
+
+
+### Features
+
+* 🎸 set a new cookie if the ngapimock cookie is missing ([7a841ef](https://github.com/ng-apimock/cypress-plugin/commit/7a841ef31d7c25eb2ab363438e689de7ec70f399))
+
 # [2.1.0](https://github.com/ng-apimock/cypress-plugin/compare/v2.0.0...v2.1.0) (2021-11-30)
 
 
