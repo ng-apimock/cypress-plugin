@@ -14,6 +14,7 @@ function promisify(chain: any) {
 }
 
 describe('CypressPlugin', () => {
+    let getCookieFn: jest.Mock;
     let requestFn: jest.Mock;
     let setCookieFn: jest.Mock;
     let wrapFn: jest.Mock;
@@ -21,11 +22,13 @@ describe('CypressPlugin', () => {
     const eventemitter2 = new EventEmitter2();
 
     beforeEach(() => {
+        getCookieFn = jest.fn();
         requestFn = jest.fn();
         setCookieFn = jest.fn();
         wrapFn = jest.fn();
 
         (global as any)['cy'] = {
+            getCookie: getCookieFn,
             request: requestFn,
             setCookie: setCookieFn,
             wrap: wrapFn
@@ -478,6 +481,7 @@ describe('CypressPlugin', () => {
     describe('setNgApimockCookie', () => {
         describe('defaults', () => {
             beforeEach(async () => {
+                getCookieFn.mockResolvedValue(Promise.resolve(null));
                 requestFn.mockResolvedValue(Promise.resolve());
                 setCookieFn.mockResolvedValue(Promise.resolve());
 
@@ -493,6 +497,7 @@ describe('CypressPlugin', () => {
 
         describe('override', () => {
             beforeEach(async () => {
+                getCookieFn.mockResolvedValue(Promise.resolve(null));
                 requestFn.mockResolvedValue(Promise.resolve());
                 setCookieFn.mockResolvedValue(Promise.resolve());
 
@@ -514,6 +519,32 @@ describe('CypressPlugin', () => {
             it('opens the init url', () => expect(requestFn).toHaveBeenCalledWith('http://localhost:9000/myapimock/init'));
 
             it('sets the cookie', () => expect(setCookieFn).toHaveBeenCalledWith('awesomemock', plugin.ngApimockId));
+        });
+
+        describe('already set cookie', () => {
+            beforeEach(async () => {
+                getCookieFn.mockResolvedValue(Promise.resolve({ value: '1234' }));
+                requestFn.mockResolvedValue(Promise.resolve());
+                setCookieFn.mockResolvedValue(Promise.resolve());
+
+                (global as any)['Cypress'].env = (envName: string) => {
+                    const envVars: { [key: string]: any } = {
+                        NG_API_MOCK_BASE_IDENTIFIER: 'awesomemock',
+                        NG_API_MOCK_BASE_URL: 'http://localhost:9000',
+                        NG_API_MOCK_BASE_PATH: 'myapimock'
+                    };
+                    return envVars[envName];
+                };
+
+                plugin = new CypressPlugin();
+                plugin.ngApimockId = '123';
+
+                await promisify(plugin.setNgApimockCookie());
+            });
+
+            it('sets the apimock id back to the cookie value', () => expect(plugin.ngApimockId).toBe('1234'));
+
+            it('sets the cookie', () => expect(setCookieFn).not.toHaveBeenCalled());
         });
     });
 

@@ -22,10 +22,10 @@ Feature: Default responses
       | core           |
       | dev-interface  |
       | cypress-plugin |
-#
-#  # When creating a repository the following things will be tested:
-#  # - http post support
-#  # - chaining
+
+  # When creating a repository the following things will be tested:
+  # - http post support
+  # - chaining
   Scenario: Post request - usecase: create repository
     Given I open the page
     When I try to create a repository

@@ -236,9 +236,16 @@ export class CypressPlugin {
      * @return {Cypress.Chainable} chainable The chainable.
      */
     setNgApimockCookie(): Cypress.Chainable<any> {
-        this.ngApimockId = uuid.v4();
-        return cy.request(urljoin(this.baseUrl, 'init'))
-            .then(() => cy.setCookie(this.configuration.identifier, this.ngApimockId))
-            .then(cy.wrap);
+        return cy.getCookie(this.configuration.identifier, { log: false })
+            .then((cookie: any) => {
+                if (cookie === null) {
+                    this.ngApimockId = uuid.v4();
+                    cy.request(urljoin(this.baseUrl, 'init'))
+                        .then(() => cy.setCookie(this.configuration.identifier, this.ngApimockId));
+                } else {
+                    this.ngApimockId = cookie.value;
+                }
+            })
+            .then(() => cy.wrap(undefined, { log: false }));
     }
 }
