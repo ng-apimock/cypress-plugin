@@ -31,7 +31,7 @@ class PagePO {
     }
 
     static error() {
-        return cy.get('.mat-dialog-title');
+        return cy.get('.mdc-dialog__title');
     }
 }
 

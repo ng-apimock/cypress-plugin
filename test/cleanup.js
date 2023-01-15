@@ -4,7 +4,7 @@ const fs = require('fs-extra');
 
 const generatedMocksDirectory = path.join(process.cwd(), '.ngapimock', 'generated');
 
-console.log('Cleaning up generaged presets');
+console.log('Cleaning up generated presets');
 [
     'unhappy.preset.json',
     'unhappy_without_mocks_with_variables.preset.json',
