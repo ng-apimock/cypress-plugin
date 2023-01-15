@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.1](https://github.com/ng-apimock/cypress-plugin/compare/v2.2.0...v2.2.1) (2023-01-15)
+
+
+### Bug Fixes
+
+* 🐛 update security dependencies ([f703fa7](https://github.com/ng-apimock/cypress-plugin/commit/f703fa77b1a584deb8845f6c5f80b49da15a232f))
+
 # [2.2.0](https://github.com/ng-apimock/cypress-plugin/compare/v2.1.0...v2.2.0) (2021-12-01)
 
 
