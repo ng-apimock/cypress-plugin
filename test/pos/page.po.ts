@@ -1,4 +1,4 @@
-class PagePO {
+export class PagePO {
     static get repositories() {
         return cy.get('.repositories');
     }
@@ -34,7 +34,3 @@ class PagePO {
         return cy.get('.mdc-dialog__title');
     }
 }
-
-module.exports = {
-    PagePO
-};

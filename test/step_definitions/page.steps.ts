@@ -1,8 +1,6 @@
-import * as path from 'path';
-
 import {
-    Before, Given, When, Then
-} from 'cypress-cucumber-preprocessor/steps';
+    Before, Given, Then, When
+} from '@badeball/cypress-cucumber-preprocessor';
 
 import { PagePO } from '../pos/page.po';
 
@@ -30,10 +28,10 @@ Given(/^I try to create a repository/, () => {
 When(/^I download the readme for the repository (.*)$/,
     (repository) => PagePO.downloadReadmeForRepository(repository));
 
-Then(/^the following repositories are shown:$/, (dataTable) => {
+Then(/^the following repositories are shown:$/, (dataTable: any) => {
     const hashes = dataTable.hashes();
 
-    hashes.forEach((h, index) => {
+    hashes.forEach((h: Record<string, string>, index: number) => {
         Object.keys(hashes[0]).forEach((f) => {
             PagePO.repositories.then(() => cy.get(`mat-row>.mat-column-${f}`))
                 .eq(index)
@@ -48,7 +46,7 @@ Then(/^the repository is added$/, () => {
         .should('contain', addedRepositoryName));
 });
 
-When(/^An error with message (.*) has occured$/, (message) => {
+When(/^An error with message (.*) has occured$/, (message: string) => {
     PagePO.error().should('contain', message);
     cy.get('body').type('{esc}');
 });
@@ -58,11 +56,8 @@ Then(/^the repositories are fetched$/, () => PagePO.repositories.should('exist')
 Then(/^the repositories are not yet fetched$/, () => PagePO.repositories.should('not.exist'));
 
 Then(/^the README is downloaded$/, () => {
-    // @todo implement
-    // cy.readFile()
-    const downloadsFolder = Cypress.config('downloadsFolder');
-    const readme = path.join(downloadsFolder, 'README.md');
+    const downloadsFolder = Cypress.config('downloadsFolder') + '/README.md';
 
-    cy.readFile(readme, 'binary', { timeout: 15000 })
+    cy.readFile(downloadsFolder, 'binary', { timeout: 15000 })
         .should((buffer) => expect(buffer.length).to.be.gt(1));
 });

@@ -1,5 +1,3 @@
-import * as https from 'https';
-
 import { Configuration } from '@ng-apimock/base-client';
 import urljoin = require('url-join');
 import * as uuid from 'uuid';
@@ -11,7 +9,6 @@ export class CypressPlugin {
     public ngApimockId: string;
     public baseUrl: string;
     public isLogsEnabled = true;
-    private agent: https.Agent;
     private configuration: Configuration;
 
     /** Constructor. */
@@ -33,10 +30,6 @@ export class CypressPlugin {
                 throw new Error('Unexpected value for NG_API_MOCK_ENABLE_LOGS env var, please provide string value: `true` or `false`');
             }
         }
-
-        this.agent = new https.Agent({
-            rejectUnauthorized: false
-        });
     }
 
     /**
@@ -146,10 +139,6 @@ export class CypressPlugin {
 
         if (['GET', 'HEAD'].indexOf(method) === -1) {
             requestObject.body = body;
-        }
-
-        if (this.baseUrl.startsWith('https')) {
-            requestObject.agent = this.agent;
         }
 
         return cy.request(requestObject)

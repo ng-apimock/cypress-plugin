@@ -65,8 +65,6 @@ describe('CypressPlugin', () => {
             it('sets the baseUrl', () => expect(plugin.baseUrl).toBe('http://localhost:9000/ngapimock'));
 
             it('sets the logging option', () => expect(plugin.isLogsEnabled).toBe(true));
-
-            it('sets the https agent', () => expect((plugin as any).agent).toBeDefined());
         });
 
         describe('overrides', () => {
@@ -96,8 +94,6 @@ describe('CypressPlugin', () => {
                 plugin = new CypressPlugin();
                 expect(plugin.isLogsEnabled).toBe(true);
             });
-
-            it('sets the https agent', () => expect((plugin as any).agent).toBeDefined());
         });
 
         describe('invalid', () => {
@@ -117,7 +113,7 @@ describe('CypressPlugin', () => {
                     // eslint-disable-next-line no-new
                     new CypressPlugin();
                 })
-                    .toThrowError('Unexpected value for NG_API_MOCK_ENABLE_LOGS env var, please provide string value: `true` or `false`');
+                    .toThrow('Unexpected value for NG_API_MOCK_ENABLE_LOGS env var, please provide string value: `true` or `false`');
             });
         });
     });
@@ -289,7 +285,7 @@ describe('CypressPlugin', () => {
             it('calls the api without body', async () => {
                 await expect(plugin.invoke('some/query', 'GET', { some: 'body' }))
                     .rejects
-                    .toThrowError('An error occured while invoking http://localhost:9000/ngapimock/some/query '
+                    .toThrow('An error occured while invoking http://localhost:9000/ngapimock/some/query '
                         + 'that resulted in status code 404');
             });
         });
