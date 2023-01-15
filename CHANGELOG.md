@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.0.0](https://github.com/ng-apimock/cypress-plugin/compare/v2.2.1...v3.0.0) (2023-01-15)
+
+
+### Bug Fixes
+
+* 🐛 Remove rejectUnauthorized option ([6edbbf8](https://github.com/ng-apimock/cypress-plugin/commit/6edbbf8d4359a17f11b7f61c2363b0325bbd7396))
+
+
+### BREAKING CHANGES
+
+* 🧨 removed rejectUnauthorized options for https
+
 ## [2.2.1](https://github.com/ng-apimock/cypress-plugin/compare/v2.2.0...v2.2.1) (2023-01-15)
 
 
