@@ -65,7 +65,7 @@
     "@types/url-join": "4.0.1",
     "@types/uuid": "9.0.0",
     "@typescript-eslint/eslint-plugin": "5.48.1",
-    "@typescript-eslint/parser": "5.48.1",
+    "@typescript-eslint/parser": "5.48.2",
     "bluebird": "3.7.2",
     "chai": "4.3.7",
     "commitizen": "4.2.6",
